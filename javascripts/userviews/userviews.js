@@ -276,7 +276,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    * @returns {Typeahead} instance
    */
   get typeahead() {
-    return $(this.config.sourceInput).data('typeahead');
+    return this.$sourceInput.data('typeahead');
   }
 
   /**
@@ -318,7 +318,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
     if (forCacheKey) {
       // Page name needed to make a unique cache key for the query.
       // For other purposes (e.g. this.pushParams()), we want to do special escaping of the page name
-      params.user = $(this.config.sourceInput).val().score();
+      params.user = this.$sourceInput.val().score();
     } else {
       params.sort = this.sort;
       params.direction = this.direction;
@@ -343,7 +343,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       return history.replaceState(null, document.title, location.href.split('?')[0]);
     }
 
-    const escapedPageName = $(this.config.sourceInput).val().score().replace(/[&%?]/g, escape);
+    const escapedPageName = this.$sourceInput.val().score().replace(/[&%?]/g, escape);
 
     window.history.replaceState({}, document.title, `?${$.param(this.getParams())}&user=${escapedPageName}`);
 
@@ -456,7 +456,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    */
   getPagesCreated() {
     const dfd = $.Deferred(),
-      username = $(this.config.sourceInput).val();
+      username = this.$sourceInput.val();
 
     let params = {
       username,
@@ -665,7 +665,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     /** start up processing if page name is present */
     if (params.user) {
-      $(this.config.sourceInput).val(decodeURIComponent(params.user).descore());
+      this.$sourceInput.val(decodeURIComponent(params.user).descore());
 
       // namespace selector may fetch siteinfo, which we need *before* processing input
       this.setupNamespaceSelector(params.namespace).then(() => {
@@ -673,7 +673,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       });
     } else {
       this.setupNamespaceSelector(params.namespace);
-      $(this.config.sourceInput).focus();
+      this.$sourceInput.focus();
     }
   }
 
@@ -694,7 +694,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       $('.output').removeClass('list-mode').removeClass('chart-mode');
       $('.data-links').addClass('invisible');
       if (this.typeahead) this.typeahead.hide();
-      $(this.config.sourceInput).val('').focus();
+      this.$sourceInput.val('').focus();
       break;
     case 'processing':
       this.processStarted();
@@ -722,7 +722,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
   processInput() {
     this.patchUsage();
 
-    const user = $(this.config.sourceInput).val();
+    const user = this.$sourceInput.val();
 
     this.setState('processing');
 
@@ -790,7 +790,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
   setupSourceInput() {
     if (this.typeahead) this.typeahead.destroy();
 
-    $(this.config.sourceInput).typeahead({
+    this.$sourceInput.typeahead({
       ajax: {
         url: `https://${this.project}.org/w/api.php`,
         timeout: 200,

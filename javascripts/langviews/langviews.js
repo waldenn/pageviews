@@ -223,7 +223,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    * @returns {Typeahead} instance
    */
   get typeahead() {
-    return $(this.config.sourceInput).data('typeahead');
+    return this.$sourceInput.data('typeahead');
   }
 
   /**
@@ -254,7 +254,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
     if (forCacheKey) {
       // Page name needed to make a unique cache key for the query.
       // For other purposes (e.g. this.pushParams()), we want to do special escaping of the page name
-      params.page = $(this.config.sourceInput).val().score();
+      params.page = this.$sourceInput.val().score();
     } else {
       params.sort = this.sort;
       params.direction = this.direction;
@@ -279,7 +279,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       return history.replaceState(null, document.title, location.href.split('?')[0]);
     }
 
-    const escapedPageName = $(this.config.sourceInput).val().score().replace(/[&%?+]/g, encodeURIComponent);
+    const escapedPageName = this.$sourceInput.val().score().replace(/[&%?+]/g, encodeURIComponent);
 
     window.history.replaceState({}, document.title, `?${$.param(this.getParams())}&page=${escapedPageName}`);
 
@@ -543,13 +543,13 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
           return this.writeMessage(`${this.getPageLink(normalizedPage)}: ${$.i18n('api-error-no-data')}`);
         }
         // fill in value for the page
-        $(this.config.sourceInput).val(normalizedPage);
+        this.$sourceInput.val(normalizedPage);
         this.processInput();
       }).fail(() => {
         this.writeMessage($.i18n('api-error-unknown', 'Info'));
       });
     } else {
-      $(this.config.sourceInput).focus();
+      this.$sourceInput.focus();
     }
   }
 
@@ -570,7 +570,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       $('.output').removeClass('list-mode').removeClass('chart-mode');
       $('.data-links').addClass('invisible');
       if (this.typeahead) this.typeahead.hide();
-      $(this.config.sourceInput).val('').focus();
+      this.$sourceInput.val('').focus();
       break;
     case 'processing':
       this.processStarted();
@@ -598,7 +598,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
   processInput() {
     this.patchUsage();
 
-    const page = $(this.config.sourceInput).val();
+    const page = this.$sourceInput.val();
 
     this.setState('processing');
 
@@ -649,7 +649,7 @@ class LangViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
   setupSourceInput() {
     if (this.typeahead) this.typeahead.destroy();
 
-    $(this.config.sourceInput).typeahead({
+    this.$sourceInput.typeahead({
       ajax: {
         url: `https://${this.project}.org/w/api.php`,
         timeout: 200,

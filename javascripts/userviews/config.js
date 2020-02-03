@@ -50,7 +50,6 @@ const config = {
       (${scope.formatNumber(Math.round(scope.outputData.average))}/${$.i18n('day')})`;
   },
   formStates: ['initial', 'processing', 'complete', 'invalid'],
-  sourceInput: '#source_input',
   timestampFormat: 'YYYYMMDD00',
   validateParams: ['project', 'platform', 'agent', 'direction', 'sort', 'view', 'redirects'],
   validParams: {

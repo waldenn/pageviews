@@ -80,7 +80,6 @@ const config = {
     }
   },
   sourceButton: '#source_button',
-  sourceInput: '#source_input',
   formStates: ['initial', 'processing', 'complete', 'invalid'],
   timestampFormat: 'YYYYMMDD00',
   validateParams: ['source', 'subjectpage', 'subcategories', 'platform', 'agent', 'direction', 'sort', 'view'],

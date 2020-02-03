@@ -14,6 +14,14 @@ const ListHelpers = superclass => class extends superclass {
   }
 
   /**
+   * Get search input element.
+   * @returns {jQuery}
+   */
+  get $sourceInput() {
+    return this.cachedElement('#source_input');
+  }
+
+  /**
    * Prepare chart options before showing chart view, based on current chart type
    */
   assignOutputDataChartOpts() {

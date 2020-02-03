@@ -87,7 +87,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     $('#source_button').data('value', source).html(`${node.textContent} <span class='caret'></span>`);
 
-    $(this.config.sourceInput).prop('type', this.config.sources[source].type)
+    this.$sourceInput.prop('type', this.config.sources[source].type)
       .prop('placeholder', this.config.sources[source].placeholder)
       .val('');
 
@@ -109,7 +109,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       $('.project-input').prop('disabled', true);
     }
 
-    $(this.config.sourceInput).focus();
+    this.$sourceInput.focus();
   }
 
   /**
@@ -131,7 +131,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       platform: this.$platformSelector.val(),
       agent: this.$agentSelector.val(),
       source: $(this.config.sourceButton).data('value'),
-      target: $(this.config.sourceInput).val().score()
+      target: this.$sourceInput.val().score()
     };
 
     /**
@@ -564,7 +564,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     // fill in value for the target
     if (params.target) {
-      $(this.config.sourceInput).val(decodeURIComponent(params.target).descore());
+      this.$sourceInput.val(decodeURIComponent(params.target).descore());
     }
 
     // If there are invalid params, remove target from params so we don't process the defaults.
@@ -628,7 +628,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       $('.output').removeClass('list-mode').removeClass('chart-mode');
       $('.data-links').addClass('invisible');
       if (this.typeahead) this.typeahead.hide();
-      $(this.config.sourceInput).val('').focus();
+      this.$sourceInput.val('').focus();
       if (typeof cb === 'function') cb.call(this);
       break;
     case 'processing':
@@ -672,7 +672,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    *   given the label and link for the PagePile and the pageviews data
    */
   processPagePile(cb) {
-    const pileId = $(this.config.sourceInput).val();
+    const pileId = this.$sourceInput.val();
 
     $('.progress-counter').text($.i18n('fetching-data', 'Page Pile API'));
     this.getPagePile(pileId).done(pileData => {
@@ -775,7 +775,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    *   given the label and link for the hashtag and the pageviews data
    */
   processHashtag(cb) {
-    const hashtag = $(this.config.sourceInput).val().replace(/^#/, ''),
+    const hashtag = this.$sourceInput.val().replace(/^#/, ''),
       hashTagLink = `<a target="_blank" href="http://tools.wmflabs.org/hashtags/search/${hashtag}">#${hashtag.escape()}</a>`;
 
     $('.progress-counter').text($.i18n('fetching-data', 'Hashtag API'));
@@ -1117,7 +1117,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    */
   processQuarry(cb) {
     const project = $('.project-input').val(),
-      id = $(this.config.sourceInput).val();
+      id = this.$sourceInput.val();
     if (!this.validateProject(project)) return;
 
     const url = `https://quarry.wmflabs.org/query/${id}/result/latest/0/json`,
@@ -1163,7 +1163,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     // get protocol, supported values: https://www.mediawiki.org/wiki/Manual:$wgUrlProtocols
     const protocolRegex = /^(?:\/\/|(ftps?|git|gopher|https?|ircs?|mms|nntp|redis|sftp|ssh|svn|telnet|worldwind):\/\/|(bitcoin|geo|magnet|mailto|news|sips?|sms|tel|urn|xmpp):)/;
-    let link = $(this.config.sourceInput).val();
+    let link = this.$sourceInput.val();
     const protocol = (protocolRegex.exec(link) || [,])[1] || 'http';
     const euquery = link.replace(protocolRegex, '');
 
@@ -1231,7 +1231,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
     const project = $('.project-input').val();
     if (!this.validateProject(project)) return;
 
-    let srsearch = $(this.config.sourceInput).val();
+    let srsearch = this.$sourceInput.val();
 
     let requestData = {
       list: 'search',
@@ -1392,7 +1392,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
     }
 
     // validate wiki URL
-    let [project, target] = this.getWikiPageFromURL($(this.config.sourceInput).val());
+    let [project, target] = this.getWikiPageFromURL(this.$sourceInput.val());
 
     if (!project || !target) {
       return this.setState('initial', () => {
