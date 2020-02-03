@@ -201,7 +201,7 @@ const ListHelpers = superclass => class extends superclass {
 
       if (this.autoLogDetection === 'true') {
         const shouldBeLogarithmic = this.shouldBeLogarithmic([this.outputData.datasets[0].data]);
-        $(this.config.logarithmicCheckbox).prop('checked', shouldBeLogarithmic);
+        this.$logarithmicCheckbox.prop('checked', shouldBeLogarithmic);
       }
 
       if (this.isLogarithmic()) {

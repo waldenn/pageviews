@@ -51,7 +51,7 @@
       <?php include '../_data_links.php'; ?>
       <!-- Chart -->
       <div class="chart-container">
-        <canvas class="aqs-chart"></canvas>
+        <canvas id="chart"></canvas>
       </div>
       <div class="message-container col-lg-12"></div>
       <div class="output col-lg-10 col-lg-offset-1">

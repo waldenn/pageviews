@@ -21,7 +21,6 @@ const config = {
     return `<strong>${$.i18n('totals')}:</strong> ${scope.formatNumber(scope.outputData.sum)}
       (${scope.formatNumber(Math.round(scope.outputData.average))}/${$.i18n('day')})`;
   },
-  logarithmicCheckbox: '.logarithmic-scale-option',
   sources: {
     category: {
       placeholder: 'https://en.wikipedia.org/wiki/Category:Hip_hop_groups_from_New_York_City',

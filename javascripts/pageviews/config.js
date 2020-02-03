@@ -10,7 +10,6 @@ const config = {
   defaults: {
     dateRange: 'latest-20'
   },
-  logarithmicCheckbox: '.logarithmic-scale-option',
   select2Input: '.aqs-select2-selector',
   templates,
   validateParams: ['project', 'platform', 'agent']

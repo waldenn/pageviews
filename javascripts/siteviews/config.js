@@ -13,7 +13,6 @@ const config = {
     projects: ['fr.wikipedia.org', 'de.wikipedia.org'],
     source: 'pageviews'
   },
-  logarithmicCheckbox: '.logarithmic-scale-option',
   select2Input: '.aqs-select2-selector',
   templates,
   validateParams: ['source', 'agent', 'platform'],

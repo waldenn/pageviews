@@ -54,7 +54,7 @@ const ChartHelpers = superclass => class extends superclass {
       this.isChartApp() ? this.updateChart() : this.renderData();
     });
 
-    $(this.config.logarithmicCheckbox).on('click', () => {
+    this.$logarithmicCheckbox.on('click', () => {
       this.autoLogDetection = 'false';
       this.isChartApp() ? this.updateChart() : this.renderData();
     });
@@ -63,7 +63,7 @@ const ChartHelpers = superclass => class extends superclass {
      * disabled/enable begin at zero checkbox accordingly,
      * but don't update chart since the log scale value can change pragmatically and not from user input
      */
-    $(this.config.logarithmicCheckbox).on('change', () => {
+    this.$logarithmicCheckbox.on('change', () => {
       $('.begin-at-zero').toggleClass('disabled', this.checked);
     });
 
@@ -115,6 +115,14 @@ const ChartHelpers = superclass => class extends superclass {
    */
   get $outputList() {
     return this.cachedElement('.output-list');
+  }
+
+  /**
+   * Get the checkbox input that toggles logarithmic view.
+   * @returns {jQuery}
+   */
+  get $logarithmicCheckbox() {
+    return this.cachedElement('#logarithmic-checkbox');
   }
 
   /**
@@ -563,7 +571,7 @@ const ChartHelpers = superclass => class extends superclass {
    * @returns {Boolean} true or false
    */
   isLogarithmic() {
-    return $(this.config.logarithmicCheckbox).is(':checked') && this.isLogarithmicCapable();
+    return this.$logarithmicCheckbox.is(':checked') && this.isLogarithmicCapable();
   }
 
   /**
@@ -806,7 +814,7 @@ const ChartHelpers = superclass => class extends superclass {
     // first figure out if we should use a log chart
     if (this.autoLogDetection === 'true') {
       const shouldBeLogarithmic = this.shouldBeLogarithmic(this.outputData.map(set => set.data));
-      $(this.config.logarithmicCheckbox).prop('checked', shouldBeLogarithmic);
+      this.$logarithmicCheckbox.prop('checked', shouldBeLogarithmic);
       $('.begin-at-zero').toggleClass('disabled', shouldBeLogarithmic);
     }
 

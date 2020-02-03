@@ -36,7 +36,7 @@
             <label for="platform_select">
               <?php echo $I18N->msg( 'platform' ); ?>
             </label>
-            <select class="form-control" id="platform_select">
+            <select class="form-control">
               <option value="all-access">
                 <?php echo $I18N->msg( 'all' ); ?>
               </option>

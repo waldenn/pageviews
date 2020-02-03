@@ -15,7 +15,6 @@ const config = {
   validParams: {
     referer: ['all-referers', 'internal', 'external', 'search-engine', 'unknown', 'none']
   },
-  logarithmicCheckbox: '.logarithmic-scale-option',
   minDate: moment('2015-01-01').startOf('day'),
   select2Input: '.aqs-select2-selector',
   templates,

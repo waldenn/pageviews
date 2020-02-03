@@ -47,7 +47,6 @@ const config = {
     return `<strong>${$.i18n('totals')}:</strong> ${scope.formatNumber(scope.outputData.sum)}
       (${scope.formatNumber(Math.round(scope.outputData.average))}/${$.i18n('day')})`;
   },
-  logarithmicCheckbox: '.logarithmic-scale-option',
   formStates: ['initial', 'processing', 'complete', 'invalid'],
   sourceInput: '#source_input',
   timestampFormat: 'YYYYMMDD00',
