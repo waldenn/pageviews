@@ -39,7 +39,7 @@
               <?php } ?>
             </ul>
           </div>
-          <input class="form-control aqs-date-range-selector" id="range-input">
+          <input class="form-control date-range-selector" id="range-input">
         </div>
         <div class="month-selector input-daterange clearfix">
           <label for="month-start">

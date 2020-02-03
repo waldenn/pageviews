@@ -89,7 +89,7 @@ const ListHelpers = superclass => class extends superclass {
   getPageviewsURL(project, page) {
     let startDate = moment(this.daterangepicker.startDate),
       endDate = moment(this.daterangepicker.endDate);
-    const platform = $(this.config.platformSelector).val();
+    const platform = this.$platformSelector.val();
 
     if (endDate.diff(startDate, 'days') === 0) {
       startDate.subtract(3, 'days');
@@ -241,7 +241,7 @@ const ListHelpers = superclass => class extends superclass {
       //  in case they changed the localization options
       this.outputData.labels = this.getDateHeadings();
 
-      const context = $(this.config.chart)[0].getContext('2d');
+      const context = this.$chart[0].getContext('2d');
       this.chartObj = new Chart(context, {
         type: this.chartType,
         data: this.outputData,

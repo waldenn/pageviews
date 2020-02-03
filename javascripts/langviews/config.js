@@ -4,8 +4,6 @@
  * @type {Object}
  */
 const config = {
-  agentSelector: '#agent_select',
-  chart: '.aqs-chart',
   badges: {
     'Q17437796': {
       image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Cscr-featured.svg',
@@ -36,7 +34,6 @@ const config = {
       name: 'validated-page'
     }
   },
-  dateRangeSelector: '#range_input',
   defaults: {
     dateRange: 'latest-20',
     sort: 'views',
@@ -51,8 +48,6 @@ const config = {
       (${scope.formatNumber(Math.round(scope.outputData.average))}/${$.i18n('day')})`;
   },
   logarithmicCheckbox: '.logarithmic-scale-option',
-  platformSelector: '#platform_select',
-  projectInput: '#project_input',
   formStates: ['initial', 'processing', 'complete', 'invalid'],
   sourceInput: '#source_input',
   timestampFormat: 'YYYYMMDD00',

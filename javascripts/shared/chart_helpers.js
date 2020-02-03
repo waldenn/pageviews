@@ -17,16 +17,12 @@ const ChartHelpers = superclass => class extends superclass {
     this.chartObj = null;
     this.prevChartType = null;
     this.autoChartType = true; // will become false when they manually change the chart type
-    this.jQueryCache = {}; // Cache jQuery selectors
 
     /** ensure we have a valid chart type in localStorage, result of Chart.js 1.0 to 2.0 migration */
     const storedChartType = this.getFromLocalStorage('pageviews-chart-preference');
     if (!this.config.linearCharts.includes(storedChartType) && !this.config.circularCharts.includes(storedChartType)) {
       this.setLocalStorage('pageviews-chart-preference', this.config.defaults.chartType());
     }
-
-    // leave if there's no chart configured
-    if (!this.config.chart) return;
 
     /**
      * add ability to disable auto-log detection
@@ -86,18 +82,6 @@ const ChartHelpers = superclass => class extends superclass {
     /** chart download listeners */
     $('.download-png').on('click', this.exportPNG.bind(this));
     $('.print-chart').on('click', this.printChart.bind(this));
-  }
-
-  /**
-   * Set and get cached jQuery element.
-   * @param {String} selector
-   * @returns {jQuery}
-   */
-  cachedElement(selector) {
-    if (this.jQueryCache[selector]) {
-      return this.jQueryCache[selector];
-    }
-    return this.jQueryCache[selector] = $(selector);
   }
 
   /**
@@ -406,8 +390,8 @@ const ChartHelpers = superclass => class extends superclass {
     }
 
     // Use defaults if options aren't set
-    const platform = $(this.config.platformSelector).val() || this.config.defaults.platform,
-      agent = $(this.config.agentSelector).val() || this.config.defaults.agent;
+    const platform = this.$platformSelector.val() || this.config.defaults.platform,
+      agent = this.$agentSelector.val() || this.config.defaults.agent;
 
     if (this.app === 'siteviews') {
       if (this.isPageviews()) {
@@ -616,7 +600,7 @@ const ChartHelpers = superclass => class extends superclass {
     } finally {
       this.stopSpinny();
       $('body').addClass('initial');
-      $(this.config.chart).hide();
+      this.$chart.hide();
       if (clearMessages) this.clearMessages();
     }
   }
@@ -688,7 +672,7 @@ const ChartHelpers = superclass => class extends superclass {
     /** prevent duplicate setup since the list view apps also use charts */
     if (!this.isChartApp()) return;
 
-    const dateRangeSelector = $(this.config.dateRangeSelector);
+    const dateRangeSelector = this.$dateRangeSelector;
 
     /** the "Latest N days" links */
     $('.date-latest a').on('click', e => {
@@ -857,9 +841,9 @@ const ChartHelpers = superclass => class extends superclass {
     this.stopSpinny();
 
     try {
-      $('.chart-container').html('').append("<canvas class='aqs-chart'>");
+      $('.chart-container').html('').append("<canvas id='chart'>");
       this.setChartPointDetectionRadius();
-      const context = $(this.config.chart)[0].getContext('2d');
+      const context = this.$chart[0].getContext('2d');
       const grandMin = Math.min(...this.outputData.map(d => d.min));
 
       if (this.config.linearCharts.includes(this.chartType)) {

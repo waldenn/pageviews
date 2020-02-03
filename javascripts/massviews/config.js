@@ -4,9 +4,6 @@
  * @type {Object}
  */
 const config = {
-  agentSelector: '#agent_select',
-  chart: '.aqs-chart',
-  dateRangeSelector: '#range_input',
   defaults: {
     dateRange: 'latest-20',
     project: 'en.wikipedia.org',
@@ -83,7 +80,6 @@ const config = {
       type: 'string'
     }
   },
-  platformSelector: '#platform_select',
   sourceButton: '#source_button',
   sourceInput: '#source_input',
   formStates: ['initial', 'processing', 'complete', 'invalid'],

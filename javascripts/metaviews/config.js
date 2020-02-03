@@ -4,9 +4,7 @@
  * @type {Object}
  */
 const config = {
-  chart: '.aqs-chart',
   chartLegend: $.noop,
-  dateRangeSelector: '.aqs-date-range-selector',
   defaults: {
     dateRange: 'latest-20'
   },

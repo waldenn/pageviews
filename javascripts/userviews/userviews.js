@@ -67,7 +67,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
     });
 
     // update namespace selector when project is changed, 0 to force selection of main namespace
-    $(this.config.projectInput).on('updated', this.setupNamespaceSelector.bind(this, 0));
+    this.$projectInput.on('updated', this.setupNamespaceSelector.bind(this, 0));
   }
 
   /**
@@ -296,9 +296,9 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    */
   getParams(forCacheKey = false) {
     let params = {
-      project: $(this.config.projectInput).val(),
-      platform: $(this.config.platformSelector).val(),
-      agent: $(this.config.agentSelector).val(),
+      project: this.$projectInput.val(),
+      platform: this.$platformSelector.val(),
+      agent: this.$agentSelector.val(),
       namespace: $('#namespace_input').val(),
       redirects: $('#redirects_select').val()
     };
@@ -512,7 +512,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
       const url = (
         `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/${this.project}` +
-        `/${$(this.config.platformSelector).val()}/${$(this.config.agentSelector).val()}/${uriEncodedPageName}/daily` +
+        `/${this.$platformSelector.val()}/${this.$agentSelector.val()}/${uriEncodedPageName}/daily` +
         `/${startDate.format(this.config.timestampFormat)}/${endDate.format(this.config.timestampFormat)}`
       );
       const promise = $.ajax({ url, dataType: 'json' });
@@ -642,7 +642,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       this.parseQueryString()
     );
 
-    $(this.config.projectInput).val(params.project);
+    this.$projectInput.val(params.project);
     this.validateDateRange(params);
 
     // If there are invalid params, remove page from params so we don't process the defaults.
@@ -652,8 +652,8 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       delete params.page;
     }
 
-    $(this.config.platformSelector).val(params.platform);
-    $(this.config.agentSelector).val(params.agent);
+    this.$platformSelector.val(params.platform);
+    this.$agentSelector.val(params.agent);
     $('#redirects_select').val(params.redirects || '0');
 
     /** export necessary params to outer scope */
@@ -728,7 +728,7 @@ class UserViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     const readyForRendering = () => {
       $('.output-title').html(this.outputData.link);
-      $('.output-params').html($(this.config.dateRangeSelector).val());
+      $('.output-params').html(this.$dateRangeSelector.val());
       this.setInitialChartType();
       this.renderData();
     };

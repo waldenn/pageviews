@@ -128,8 +128,8 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
    */
   getParams(forCacheKey = false) {
     let params = {
-      platform: $(this.config.platformSelector).val(),
-      agent: $(this.config.agentSelector).val(),
+      platform: this.$platformSelector.val(),
+      agent: this.$agentSelector.val(),
       source: $(this.config.sourceButton).data('value'),
       target: $(this.config.sourceInput).val().score()
     };
@@ -266,7 +266,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       const uriEncodedPageName = encodeURIComponent(page);
       const url = (
         `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/${queryProject}` +
-        `/${$(this.config.platformSelector).val()}/${$(this.config.agentSelector).val()}/${uriEncodedPageName}/daily` +
+        `/${this.$platformSelector.val()}/${this.$agentSelector.val()}/${uriEncodedPageName}/daily` +
         `/${startDate.format(this.config.timestampFormat)}/${endDate.format(this.config.timestampFormat)}`
       );
       const promise = $.ajax({ url, dataType: 'json' });
@@ -583,8 +583,8 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
       );
     }
 
-    $(this.config.platformSelector).val(params.platform);
-    $(this.config.agentSelector).val(params.agent);
+    this.$platformSelector.val(params.platform);
+    this.$agentSelector.val(params.agent);
 
     /** export necessary params to outer scope */
     ['sort', 'direction', 'view', 'source', 'subjectpage'].forEach(key => {
@@ -701,7 +701,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
         // $('.output-title').text(label).prop('href', this.getPileURL(pileData.id));
         $('.output-params').html(
           `
-          ${$(this.config.dateRangeSelector).val()}
+          ${this.$dateRangeSelector.val()}
           &mdash;
           <a href="https://${project.escape()}" target="_blank">
             ${project.replace(/.org$/, '').escape()}
@@ -1352,7 +1352,7 @@ class MassViews extends mix(Pv).with(ChartHelpers, ListHelpers) {
 
     const readyForRendering = () => {
       $('.output-title').html(this.outputData.link);
-      $('.output-params').html($(this.config.dateRangeSelector).val());
+      $('.output-params').html(this.$dateRangeSelector.val());
       this.setInitialChartType();
       this.renderData();
     };

@@ -6,9 +6,7 @@ const templates = require('./templates');
  * @type {Object}
  */
 const config = {
-  chart: '.aqs-chart',
   chartLegend: templates.chartLegend,
-  dateRangeSelector: '.aqs-date-range-selector',
   defaults: {
     dateRange: 'latest-20',
     referer: 'all-referers',
@@ -19,7 +17,6 @@ const config = {
   },
   logarithmicCheckbox: '.logarithmic-scale-option',
   minDate: moment('2015-01-01').startOf('day'),
-  projectInput: '.aqs-project-input',
   select2Input: '.aqs-select2-selector',
   templates,
   validateParams: ['project', 'referer', 'agent']

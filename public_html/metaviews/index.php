@@ -36,7 +36,7 @@
             ?>
             <?php echo $I18N->msg( 'latest-days', array( 'variables' => array( $dayLinks ) ) ); ?>
           </span>
-          <input class="form-control aqs-date-range-selector" id="range-input">
+          <input class="form-control date-range-selector" id="range-input">
         </div>
       </div>
       <!-- Tool selector -->
