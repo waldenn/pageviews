@@ -16,12 +16,11 @@ const ChartHelpers = superclass => class extends superclass {
 
     this.chartObj = null;
     this.prevChartType = null;
-    this.autoChartType = true; // will become false when they manually change the chart type
 
     /** ensure we have a valid chart type in localStorage, result of Chart.js 1.0 to 2.0 migration */
-    const storedChartType = this.getFromLocalStorage('pageviews-chart-preference');
+    const storedChartType = localStorage.getItem('pageviews-chart-preference');
     if (!this.config.linearCharts.includes(storedChartType) && !this.config.circularCharts.includes(storedChartType)) {
-      this.setLocalStorage('pageviews-chart-preference', this.config.defaults.chartType());
+      localStorage.setItem('pageviews-chart-preference', this.config.defaults.chartType());
     }
 
     /**
@@ -38,17 +37,23 @@ const ChartHelpers = superclass => class extends superclass {
       this.config.chartConfig[circularChart].opts.legendTemplate = this.config.circularLegend;
     });
 
+    this.setupChartOptions();
+  }
+
+  /**
+   * Set initial values and attach click events to the chart options.
+   */
+  setupChartOptions() {
     /** changing of chart types */
     $('.modal-chart-type a').on('click', e => {
       this.chartType = $(e.currentTarget).data('type');
-      this.autoChartType = false;
 
       $('.logarithmic-scale').toggle(this.isLogarithmicCapable());
       $('.begin-at-zero').toggle(this.config.linearCharts.includes(this.chartType));
       $('.show-labels').toggle(['bar', 'line'].includes(this.chartType));
 
       if (this.rememberChart === 'true') {
-        this.setLocalStorage('pageviews-chart-preference', this.chartType);
+        localStorage.setItem('pageviews-chart-preference', this.chartType);
       }
 
       this.isChartApp() ? this.updateChart() : this.renderData();
@@ -60,8 +65,8 @@ const ChartHelpers = superclass => class extends superclass {
     });
 
     /**
-     * disabled/enable begin at zero checkbox accordingly,
-     * but don't update chart since the log scale value can change pragmatically and not from user input
+     * Disabled/enable begin at zero checkbox accordingly, but don't update chart
+     * since the log scale value can change pragmatically and not from user input.
      */
     this.$logarithmicCheckbox.on('change', () => {
       $('.begin-at-zero').toggleClass('disabled', this.checked);
@@ -71,11 +76,7 @@ const ChartHelpers = superclass => class extends superclass {
       $('.begin-at-zero-option').prop('checked', true);
     }
 
-    $('.begin-at-zero-option').on('click', () => {
-      this.isChartApp() ? this.updateChart() : this.renderData();
-    });
-
-    $('.show-labels-option').on('click', () => {
+    $.merge(this.$beginAtZeroCheckbox, this.$showLabelsCheckbox).on('click', () => {
       this.isChartApp() ? this.updateChart() : this.renderData();
     });
 
@@ -126,12 +127,28 @@ const ChartHelpers = superclass => class extends superclass {
   }
 
   /**
+   * Get the "Begin at zero" checkbox.
+   * @return {jQuery}
+   */
+  get $beginAtZeroCheckbox() {
+    return this.cachedElement('.begin-at-zero');
+  }
+
+  /**
+   * Get the "Show labels" checkbox.
+   * @return {jQuery}
+   */
+  get $showLabelsCheckbox() {
+    return this.cachedElement('.show-labels-option');
+  }
+
+  /**
    * Set the default chart type or the one from localStorage, based on settings
    * @param {Number} [numDatasets] - number of datasets
    */
   setInitialChartType(numDatasets = 1) {
     if (this.rememberChart === 'true') {
-      this.chartType = this.getFromLocalStorage('pageviews-chart-preference') || this.config.defaults.chartType(numDatasets);
+      this.chartType = localStorage.getItem('pageviews-chart-preference') || this.config.defaults.chartType(numDatasets);
     } else {
       this.chartType = this.config.defaults.chartType(numDatasets);
     }
