@@ -280,16 +280,6 @@ class MediaViews extends mix(Pv).with(ChartHelpers) {
         this.processInput();
       }
     });
-    $('.sort-link').on('click', e => {
-      const sortType = $(e.currentTarget).data('type');
-      this.direction = this.sort === sortType ? -this.direction : 1;
-      this.sort = sortType;
-      this.updateTable();
-    });
-    $('.clear-pages').on('click', () => {
-      this.resetView(true);
-      this.focusSelect2();
-    });
   }
 
   /**

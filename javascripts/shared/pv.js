@@ -1327,6 +1327,13 @@ class Pv extends PvConfig {
         // silently ignore
       }
     });
+
+    $('.sort-link').on('click', e => {
+      const sortType = $(e.currentTarget).data('type');
+      this.direction = this.sort === sortType ? -this.direction : 1;
+      this.sort = sortType;
+      this.isChartApp() ? this.updateTable() : this.renderData();
+    });
   }
 
   /**
@@ -1580,6 +1587,13 @@ class Pv extends PvConfig {
         link.href = `${url}?project=${this.project.escape()}.org`;
       }
     });
+  }
+
+  /**
+   * Trigger an update to the chart or list.
+   */
+  triggerUpdate() {
+    this.isChartApp() ? this.updateChart() : this.renderData();
   }
 
   /**

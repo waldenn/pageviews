@@ -56,12 +56,12 @@ const ChartHelpers = superclass => class extends superclass {
         localStorage.setItem('pageviews-chart-preference', this.chartType);
       }
 
-      this.isChartApp() ? this.updateChart() : this.renderData();
+      this.triggerUpdate();
     });
 
     this.$logarithmicCheckbox.on('click', () => {
       this.autoLogDetection = 'false';
-      this.isChartApp() ? this.updateChart() : this.renderData();
+      this.triggerUpdate();
     });
 
     /**
@@ -77,7 +77,7 @@ const ChartHelpers = superclass => class extends superclass {
     }
 
     $.merge(this.$beginAtZeroCheckbox, this.$showLabelsCheckbox).on('click', () => {
-      this.isChartApp() ? this.updateChart() : this.renderData();
+      this.triggerUpdate();
     });
 
     /** chart download listeners */
@@ -1092,6 +1092,17 @@ const ChartHelpers = superclass => class extends superclass {
     }
 
     return false;
+  }
+
+  /**
+   * Listeners specific to chart-based apps.
+   * @override
+   */
+  setupListeners() {
+    $('.clear-pages').on('click', () => {
+      this.resetView(true);
+      this.focusSelect2();
+    });
   }
 };
 

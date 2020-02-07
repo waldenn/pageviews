@@ -366,7 +366,7 @@ class PageViews extends mix(Pv).with(ChartHelpers) {
    */
   setupListeners() {
     super.setupListeners();
-    $('#platform-select, #agent-select').on('change', this.processInput.bind(this));
+    $.merge(this.$platformSelector, this.$agentSelector).on('change', this.processInput.bind(this));
     $('#date-type-select').on('change', e => {
       $('.date-selector').toggle(e.target.value === 'daily');
       $('.month-selector').toggle(e.target.value === 'monthly');
@@ -385,16 +385,6 @@ class PageViews extends mix(Pv).with(ChartHelpers) {
       } else {
         this.processInput();
       }
-    });
-    $('.sort-link').on('click', e => {
-      const sortType = $(e.currentTarget).data('type');
-      this.direction = this.sort === sortType ? -this.direction : 1;
-      this.sort = sortType;
-      this.updateTable();
-    });
-    $('.clear-pages').on('click', () => {
-      this.resetView(true);
-      this.focusSelect2();
     });
   }
 

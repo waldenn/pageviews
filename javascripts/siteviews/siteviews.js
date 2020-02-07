@@ -186,7 +186,7 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
   setupSelect2() {
     let params = {
       ajax: {
-        transport: (params, success, failure) => {
+        transport: (params, success) => {
           const results = siteDomains.filter(domain => domain.startsWith(params.data.q));
           success({ results: results.slice(0, 10) });
         },
@@ -223,7 +223,7 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
   setupDataSourceSelector() {
     this.setPlatformOptionValues();
 
-    $(this.config.dataSourceSelector).on('change', e => {
+    $(this.config.dataSourceSelector).on('change', () => {
       const platform = this.$platformSelector.val() || '',
         wasMobileValue = platform.includes('mobile'),
         wasPagecounts = this.params ? this.params.includes('pagecounts') : false;
@@ -298,16 +298,6 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
 
       this.processInput();
     });
-    $('.sort-link').on('click', e => {
-      const sortType = $(e.currentTarget).data('type');
-      this.direction = this.sort === sortType ? -this.direction : 1;
-      this.sort = sortType;
-      this.updateTable();
-    });
-    $('.clear-pages').on('click', () => {
-      this.resetView(true);
-      this.focusSelect2();
-    });
   }
 
   /**
@@ -372,7 +362,7 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
       return;
     }
 
-    datasets.forEach((item, index) => {
+    datasets.forEach(item => {
       this.$outputList.append(this.config.templates.tableRow(this, item));
     });
 
@@ -464,26 +454,6 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
     }
 
     return super.validateParams(params);
-  }
-
-  /**
-   * Validates the given projects against the site map
-   *   showing an error message of any that are invalid,
-   *   and returning an array of the given projects that are valid
-   * @param {Array} projects - array of project strings to validate
-   * @returns {Array} - given projects that are valid
-   */
-  validateProjects(projects = []) {
-    return projects.filter(project => {
-      if (siteDomains.includes(project)) {
-        return true;
-      } else {
-        this.writeMessage(
-          $.i18n('invalid-project', `<a href='//${project.escape()}'>${project.escape()}</a>`)
-        );
-        return false;
-      }
-    });
   }
 }
 
