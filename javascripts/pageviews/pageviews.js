@@ -537,7 +537,7 @@ class PageViews extends mix(Pv).with(ChartHelpers) {
     case 'title':
       return item.label;
     case 'class':
-      return $(item.assessment).prop('alt'); // use alt attribute of image tag
+      return item.assessment;
     case 'views':
       return Number(item.sum);
     case 'average':

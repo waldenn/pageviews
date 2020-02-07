@@ -5342,14 +5342,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var config = require('./config');
-var Pv = require('../shared/pv');
 var siteMap = require('../shared/site_map');
 var ChartHelpers = require('../shared/chart_helpers');
 
 /** Main PageViews class */
 
-var PageViews = function (_mix$with) {
-  _inherits(PageViews, _mix$with);
+var PageViews = function (_ChartHelpers) {
+  _inherits(PageViews, _ChartHelpers);
 
   /**
    * Set instance variables and boot the app via pv.constructor.
@@ -5768,6 +5767,7 @@ var PageViews = function (_mix$with) {
     value: function setupListeners() {
       var _this6 = this;
 
+      _get(PageViews.prototype.__proto__ || Object.getPrototypeOf(PageViews.prototype), 'setupListeners', this).call(this);
       $.merge(this.$platformSelector, this.$agentSelector).on('change', this.processInput.bind(this));
       $('#date-type-select').on('change', function (e) {
         $('.date-selector').toggle(e.target.value === 'daily');
@@ -5786,8 +5786,6 @@ var PageViews = function (_mix$with) {
           _this6.processInput();
         }
       });
-
-      _get(PageViews.prototype.__proto__ || Object.getPrototypeOf(PageViews.prototype), 'setupListeners', this).call(this);
     }
 
     /**
@@ -5953,7 +5951,7 @@ var PageViews = function (_mix$with) {
         case 'title':
           return item.label;
         case 'class':
-          return $(item.assessment).prop('alt'); // use alt attribute of image tag
+          return item.assessment;
         case 'views':
           return Number(item.sum);
         case 'average':
@@ -6063,13 +6061,13 @@ var PageViews = function (_mix$with) {
   }]);
 
   return PageViews;
-}(mix(Pv).with(ChartHelpers));
+}(ChartHelpers);
 
 $(function () {
   new PageViews();
 });
 
-},{"../shared/chart_helpers":4,"../shared/pv":7,"../shared/site_map":9,"./config":1}],3:[function(require,module,exports){
+},{"../shared/chart_helpers":4,"../shared/site_map":9,"./config":1}],3:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -6228,6 +6226,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var Pv = require('../shared/pv');
 require('./zoom_plugin');
 
 /**
@@ -6235,1271 +6234,1273 @@ require('./zoom_plugin');
  * @param {class} superclass - base class
  * @returns {null} class extending superclass
  */
-var ChartHelpers = function ChartHelpers(superclass) {
-  return function (_superclass) {
-    _inherits(_class, _superclass);
 
-    /**
-     * Called from pv.constructor, setting common instance variables and
-     *   initial set up for chart-related apps
-     * @param {Object} appConfig - as defined in the app's config.js
-     */
-    function _class(appConfig) {
-      _classCallCheck(this, _class);
+var ChartHelpers = function (_Pv) {
+  _inherits(ChartHelpers, _Pv);
 
-      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, appConfig));
+  /**
+   * Called from pv.constructor, setting common instance variables and
+   *   initial set up for chart-related apps
+   * @param {Object} appConfig - as defined in the app's config.js
+   */
+  function ChartHelpers(appConfig) {
+    _classCallCheck(this, ChartHelpers);
 
-      _this.chartObj = null;
-      _this.prevChartType = null;
+    var _this = _possibleConstructorReturn(this, (ChartHelpers.__proto__ || Object.getPrototypeOf(ChartHelpers)).call(this, appConfig));
 
-      /** ensure we have a valid chart type in localStorage, result of Chart.js 1.0 to 2.0 migration */
-      var storedChartType = localStorage.getItem('pageviews-chart-preference');
-      if (!_this.config.linearCharts.includes(storedChartType) && !_this.config.circularCharts.includes(storedChartType)) {
-        localStorage.setItem('pageviews-chart-preference', _this.config.defaults.chartType());
-      }
+    _this.chartObj = null;
+    _this.prevChartType = null;
 
-      /**
-       * add ability to disable auto-log detection
-       * @type {String}
-       */
-      _this.noLogScale = location.search.includes('autolog=false');
-
-      /** copy over app-specific chart templates */
-      _this.config.linearCharts.forEach(function (linearChart) {
-        _this.config.chartConfig[linearChart].opts.legendTemplate = _this.config.linearLegend;
-      });
-      _this.config.circularCharts.forEach(function (circularChart) {
-        _this.config.chartConfig[circularChart].opts.legendTemplate = _this.config.circularLegend;
-      });
-
-      _this.setupChartOptions();
-      return _this;
+    /** ensure we have a valid chart type in localStorage, result of Chart.js 1.0 to 2.0 migration */
+    var storedChartType = localStorage.getItem('pageviews-chart-preference');
+    if (!_this.config.linearCharts.includes(storedChartType) && !_this.config.circularCharts.includes(storedChartType)) {
+      localStorage.setItem('pageviews-chart-preference', _this.config.defaults.chartType());
     }
 
     /**
-     * Set initial values and attach click events to the chart options.
+     * add ability to disable auto-log detection
+     * @type {String}
+     */
+    _this.noLogScale = location.search.includes('autolog=false');
+
+    /** copy over app-specific chart templates */
+    _this.config.linearCharts.forEach(function (linearChart) {
+      _this.config.chartConfig[linearChart].opts.legendTemplate = _this.config.linearLegend;
+    });
+    _this.config.circularCharts.forEach(function (circularChart) {
+      _this.config.chartConfig[circularChart].opts.legendTemplate = _this.config.circularLegend;
+    });
+
+    _this.setupChartOptions();
+    return _this;
+  }
+
+  /**
+   * Set initial values and attach click events to the chart options.
+   */
+
+
+  _createClass(ChartHelpers, [{
+    key: 'setupChartOptions',
+    value: function setupChartOptions() {
+      var _this2 = this;
+
+      /** changing of chart types */
+      $('.modal-chart-type a').on('click', function (e) {
+        _this2.chartType = $(e.currentTarget).data('type');
+
+        $('.logarithmic-scale').toggle(_this2.isLogarithmicCapable());
+        $('.begin-at-zero').toggle(_this2.config.linearCharts.includes(_this2.chartType));
+        $('.show-labels').toggle(['bar', 'line'].includes(_this2.chartType));
+
+        if (_this2.rememberChart === 'true') {
+          localStorage.setItem('pageviews-chart-preference', _this2.chartType);
+        }
+
+        _this2.triggerUpdate();
+      });
+
+      this.$logarithmicCheckbox.on('click', function () {
+        _this2.autoLogDetection = 'false';
+        _this2.triggerUpdate();
+      });
+
+      /**
+       * Disabled/enable begin at zero checkbox accordingly, but don't update chart
+       * since the log scale value can change pragmatically and not from user input.
+       */
+      this.$logarithmicCheckbox.on('change', function () {
+        $('.begin-at-zero').toggleClass('disabled', _this2.checked);
+      });
+
+      if (this.beginAtZero === 'true') {
+        $('.begin-at-zero-option').prop('checked', true);
+      }
+
+      $.merge(this.$beginAtZeroCheckbox, this.$showLabelsCheckbox).on('click', function () {
+        _this2.triggerUpdate();
+      });
+
+      /** chart download listeners */
+      $('.download-png').on('click', this.exportPNG.bind(this));
+      $('.print-chart').on('click', this.printChart.bind(this));
+    }
+
+    /**
+     * Get the datepicker (not daterangepicker) instance of the combined
+     *   start and end month selectors, as provided by the library
+     * @return {Object} datepicker
      */
 
+  }, {
+    key: 'setInitialChartType',
 
-    _createClass(_class, [{
-      key: 'setupChartOptions',
-      value: function setupChartOptions() {
-        var _this2 = this;
 
-        /** changing of chart types */
-        $('.modal-chart-type a').on('click', function (e) {
-          _this2.chartType = $(e.currentTarget).data('type');
+    /**
+     * Set the default chart type or the one from localStorage, based on settings
+     * @param {Number} [numDatasets] - number of datasets
+     */
+    value: function setInitialChartType() {
+      var numDatasets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-          $('.logarithmic-scale').toggle(_this2.isLogarithmicCapable());
-          $('.begin-at-zero').toggle(_this2.config.linearCharts.includes(_this2.chartType));
-          $('.show-labels').toggle(['bar', 'line'].includes(_this2.chartType));
-
-          if (_this2.rememberChart === 'true') {
-            localStorage.setItem('pageviews-chart-preference', _this2.chartType);
-          }
-
-          _this2.triggerUpdate();
-        });
-
-        this.$logarithmicCheckbox.on('click', function () {
-          _this2.autoLogDetection = 'false';
-          _this2.triggerUpdate();
-        });
-
-        /**
-         * Disabled/enable begin at zero checkbox accordingly, but don't update chart
-         * since the log scale value can change pragmatically and not from user input.
-         */
-        this.$logarithmicCheckbox.on('change', function () {
-          $('.begin-at-zero').toggleClass('disabled', _this2.checked);
-        });
-
-        if (this.beginAtZero === 'true') {
-          $('.begin-at-zero-option').prop('checked', true);
-        }
-
-        $.merge(this.$beginAtZeroCheckbox, this.$showLabelsCheckbox).on('click', function () {
-          _this2.triggerUpdate();
-        });
-
-        /** chart download listeners */
-        $('.download-png').on('click', this.exportPNG.bind(this));
-        $('.print-chart').on('click', this.printChart.bind(this));
+      if (this.rememberChart === 'true') {
+        this.chartType = localStorage.getItem('pageviews-chart-preference') || this.config.defaults.chartType(numDatasets);
+      } else {
+        this.chartType = this.config.defaults.chartType(numDatasets);
       }
+    }
 
-      /**
-       * Get the datepicker (not daterangepicker) instance of the combined
-       *   start and end month selectors, as provided by the library
-       * @return {Object} datepicker
-       */
+    /**
+     * Destroy previous chart, if needed.
+     */
 
-    }, {
-      key: 'setInitialChartType',
-
-
-      /**
-       * Set the default chart type or the one from localStorage, based on settings
-       * @param {Number} [numDatasets] - number of datasets
-       */
-      value: function setInitialChartType() {
-        var numDatasets = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
-        if (this.rememberChart === 'true') {
-          this.chartType = localStorage.getItem('pageviews-chart-preference') || this.config.defaults.chartType(numDatasets);
-        } else {
-          this.chartType = this.config.defaults.chartType(numDatasets);
-        }
+  }, {
+    key: 'destroyChart',
+    value: function destroyChart() {
+      if (this.chartObj) {
+        this.chartObj.destroy();
+        $('.chart-legend').html('');
       }
+    }
 
-      /**
-       * Destroy previous chart, if needed.
-       */
+    /**
+     * Exports current chart data to CSV format and loads it in a new tab
+     * With the prepended data:text/csv this should cause the browser to download the data
+     */
 
-    }, {
-      key: 'destroyChart',
-      value: function destroyChart() {
-        if (this.chartObj) {
-          this.chartObj.destroy();
-          $('.chart-legend').html('');
-        }
-      }
+  }, {
+    key: 'exportCSV',
+    value: function exportCSV() {
+      var csvContent = 'data:text/csv;charset=utf-8,Date,';
+      var titles = [];
+      var dataRows = [];
+      var dates = this.getDateHeadings(false);
 
-      /**
-       * Exports current chart data to CSV format and loads it in a new tab
-       * With the prepended data:text/csv this should cause the browser to download the data
-       */
+      // Begin constructing the dataRows array by populating it with the dates
+      dates.forEach(function (date, index) {
+        dataRows[index] = [date];
+      });
 
-    }, {
-      key: 'exportCSV',
-      value: function exportCSV() {
-        var csvContent = 'data:text/csv;charset=utf-8,Date,';
-        var titles = [];
-        var dataRows = [];
-        var dates = this.getDateHeadings(false);
+      this.chartObj.data.datasets.forEach(function (site) {
+        // Build an array of site titles for use in the CSV header
+        var siteTitle = '"' + site.label.replace(/"/g, '""') + '"';
+        titles.push(siteTitle);
 
-        // Begin constructing the dataRows array by populating it with the dates
+        // Populate the dataRows array with the data for this site
         dates.forEach(function (date, index) {
-          dataRows[index] = [date];
+          dataRows[index].push(site.data[index]);
+        });
+      });
+
+      // Finish the CSV header
+      csvContent = csvContent + titles.join(',') + '\n';
+
+      // Add the rows to the CSV
+      dataRows.forEach(function (data) {
+        csvContent += data.join(',') + '\n';
+      });
+
+      this.downloadData(csvContent, 'csv');
+    }
+
+    /**
+     * Exports current chart data to JSON format and loads it in a new tab
+     */
+
+  }, {
+    key: 'exportJSON',
+    value: function exportJSON() {
+      var _this3 = this;
+
+      var data = [];
+
+      this.chartObj.data.datasets.forEach(function (page, index) {
+        var entry = {
+          page: page.label.replace(/"/g, '\"').replace(/'/g, "\'"),
+          color: page.strokeColor,
+          sum: page.sum,
+          daily_average: Math.round(page.sum / _this3.numDaysInRange())
+        };
+
+        _this3.getDateHeadings(false).forEach(function (heading, index) {
+          entry[heading.replace(/\\/, '')] = page.data[index];
         });
 
-        this.chartObj.data.datasets.forEach(function (site) {
-          // Build an array of site titles for use in the CSV header
-          var siteTitle = '"' + site.label.replace(/"/g, '""') + '"';
-          titles.push(siteTitle);
+        data.push(entry);
+      });
 
-          // Populate the dataRows array with the data for this site
-          dates.forEach(function (date, index) {
-            dataRows[index].push(site.data[index]);
-          });
-        });
+      var jsonContent = 'data:text/json;charset=utf-8,' + JSON.stringify(data);
+      this.downloadData(jsonContent, 'json');
+    }
 
-        // Finish the CSV header
-        csvContent = csvContent + titles.join(',') + '\n';
+    /**
+     * Exports current data as PNG image, opening it in a new tab
+     */
 
-        // Add the rows to the CSV
-        dataRows.forEach(function (data) {
-          csvContent += data.join(',') + '\n';
-        });
+  }, {
+    key: 'exportPNG',
+    value: function exportPNG() {
+      this.downloadData(this.chartObj.toBase64Image(), 'png');
+    }
 
-        this.downloadData(csvContent, 'csv');
+    /**
+     * Fills in zero values to a timeseries, see:
+     * https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageview_API#Gotchas
+     *
+     * @param {object} data fetched from API
+     * @param {moment} startDate - start date of range to filter through
+     * @param {moment} endDate - end date of range
+     * @returns {object} dataset with zeros where nulls where
+     */
+
+  }, {
+    key: 'fillInZeros',
+    value: function fillInZeros(data, startDate, endDate) {
+      var _this4 = this;
+
+      /** Extract the dates that are already in the timeseries */
+      var alreadyThere = {};
+      data.items.forEach(function (elem) {
+        var date = moment(elem.timestamp, _this4.config.timestampFormat).format('YYYYMMDD');
+        alreadyThere[date] = elem;
+      });
+      data.items = [];
+
+      /** Reconstruct with zeros instead of nulls */
+      for (var date = moment(startDate); date <= endDate; date.add(1, 'day')) {
+        if (alreadyThere[date.format('YYYYMMDD')]) {
+          data.items.push(alreadyThere[date.format('YYYYMMDD')]);
+        } else {
+          var edgeCase = date.isSame(this.maxDate) || date.isSame(moment(this.maxDate).subtract(1, 'days'));
+          data.items.push(_defineProperty({
+            timestamp: date.format(this.config.timestampFormat)
+          }, this.isPageviews() ? 'views' : 'devices', edgeCase ? null : 0));
+        }
       }
 
-      /**
-       * Exports current chart data to JSON format and loads it in a new tab
-       */
+      return data;
+    }
 
-    }, {
-      key: 'exportJSON',
-      value: function exportJSON() {
-        var _this3 = this;
+    /**
+     * Get data formatted for Chart.js and the legend templates
+     * @param {Array} datasets - as retrieved by getPageViewsData
+     * @param {Array} labels - corresponding labels for the datasets
+     * @param {String} [forceViewKey] - use this view key instead of going off of
+     *   which app we are running or which options are set.
+     * @returns {object} - ready for chart rendering
+     */
 
-        var data = [];
+  }, {
+    key: 'buildChartData',
+    value: function buildChartData(datasets, labels, forceViewKey) {
+      var _this5 = this;
 
-        this.chartObj.data.datasets.forEach(function (page, index) {
-          var entry = {
-            page: page.label.replace(/"/g, '\"').replace(/'/g, "\'"),
-            color: page.strokeColor,
-            sum: page.sum,
-            daily_average: Math.round(page.sum / _this3.numDaysInRange())
-          };
+      var viewKey = void 0;
+      var dateFormat = this.isMonthly() ? 'YYYY-MM' : 'YYYY-MM-DD',
+          dateHeadings = this.getDateHeadings(false); // false to be unlocalized
 
-          _this3.getDateHeadings(false).forEach(function (heading, index) {
-            entry[heading.replace(/\\/, '')] = page.data[index];
-          });
-
-          data.push(entry);
-        });
-
-        var jsonContent = 'data:text/json;charset=utf-8,' + JSON.stringify(data);
-        this.downloadData(jsonContent, 'json');
+      // key to use in dataseries varies based on app
+      if (forceViewKey) {
+        viewKey = forceViewKey;
+      } else if (this.isPageviews()) {
+        viewKey = 'views';
+      } else if (this.app === 'mediaviews') {
+        viewKey = 'requests';
+      } else if (this.app === 'metaviews' || this.isPagecounts()) {
+        viewKey = 'count';
+      } else {
+        viewKey = 'devices';
       }
 
-      /**
-       * Exports current data as PNG image, opening it in a new tab
-       */
+      return datasets.map(function (dataset, index) {
+        /** Build the article's dataset. */
+        var values = new Array(dateHeadings.length),
+            sum = 0,
+            min = void 0,
+            max = 0;
 
-    }, {
-      key: 'exportPNG',
-      value: function exportPNG() {
-        this.downloadData(this.chartObj.toBase64Image(), 'png');
-      }
+        dataset.forEach(function (elem) {
+          // Due to a GOTCHA, the API may only return data for certain dates in the requested date range,
+          //  so here we line them up with the requested date range and fill in zeros for the missing dates
+          var value = elem[viewKey];
+          var date = void 0;
 
-      /**
-       * Fills in zero values to a timeseries, see:
-       * https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageview_API#Gotchas
-       *
-       * @param {object} data fetched from API
-       * @param {moment} startDate - start date of range to filter through
-       * @param {moment} endDate - end date of range
-       * @returns {object} dataset with zeros where nulls where
-       */
-
-    }, {
-      key: 'fillInZeros',
-      value: function fillInZeros(data, startDate, endDate) {
-        var _this4 = this;
-
-        /** Extract the dates that are already in the timeseries */
-        var alreadyThere = {};
-        data.items.forEach(function (elem) {
-          var date = moment(elem.timestamp, _this4.config.timestampFormat).format('YYYYMMDD');
-          alreadyThere[date] = elem;
-        });
-        data.items = [];
-
-        /** Reconstruct with zeros instead of nulls */
-        for (var date = moment(startDate); date <= endDate; date.add(1, 'day')) {
-          if (alreadyThere[date.format('YYYYMMDD')]) {
-            data.items.push(alreadyThere[date.format('YYYYMMDD')]);
+          if (_this5.app === 'metaviews') {
+            date = elem.date;
           } else {
-            var edgeCase = date.isSame(this.maxDate) || date.isSame(moment(this.maxDate).subtract(1, 'days'));
-            data.items.push(_defineProperty({
-              timestamp: date.format(this.config.timestampFormat)
-            }, this.isPageviews() ? 'views' : 'devices', edgeCase ? null : 0));
+            date = moment(elem.timestamp, _this5.config.timestampFormat).format(dateFormat);
           }
+
+          values[dateHeadings.indexOf(date)] = value;
+          sum += value || 0;
+          if (value > max) max = value;
+          if (min === undefined || value < min) min = value;
+        });
+
+        var average = Math.round(sum / dateHeadings.length),
+            label = labels[index].descore();
+
+        var entityInfo = _this5.entityInfo && _this5.entityInfo.entities ? _this5.entityInfo.entities[label] : {};
+
+        dataset = Object.assign({
+          label: label,
+          data: values,
+          value: sum, // duplicated because Chart.js wants a single `value` for circular charts
+          sum: sum,
+          average: average,
+          median: _this5.getMedian(values),
+          max: max,
+          min: min
+        }, entityInfo);
+
+        return dataset;
+      });
+    }
+
+    /**
+     * Get the median of the given dataset.
+     * @param  {object|array} dataset If object, assumes the values are the pageviews.
+     * @return {integer}
+     */
+
+  }, {
+    key: 'getMedian',
+    value: function getMedian(dataset) {
+      var sortedValues = Object.values(dataset).sort(function (a, b) {
+        return a - b;
+      }),
+          half = Math.floor(sortedValues.length / 2);
+
+      return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2.0;
+    }
+
+    /**
+     * Set colors for each dataset based on the config for that chart type.
+     * This is because when removing entities from Select2, the only thing
+     *   thing that needs doing is to set the colors based on how many entities we have
+     * This function also sets null where there are zeros if we're showing a log chart,
+     *   and otherwise fills in zeros where there are nulls (due to API caveat)
+     * @param {Object} outputData - should be hte same as this.outputData
+     * @returns {Object} transformed data
+     */
+
+  }, {
+    key: 'setColorsAndLogValues',
+    value: function setColorsAndLogValues(outputData) {
+      var _this6 = this;
+
+      // don't try to plot zeros on a logarithmic chart
+      var startDate = moment(this.daterangepicker.startDate),
+          endDate = moment(this.daterangepicker.endDate),
+          dateType = this.isMonthly() ? 'month' : 'day',
+
+      // This is used to make sure Select2 colours match those in the chart and legend,
+      //   though in some cases (all-projects in Siteviews) the Select2 control may be empty
+      //   so we instead use an empty array
+      select2Values = this.getEntities().map(function (title) {
+        return title.descore();
+      });
+
+      return outputData.map(function (dataset, index) {
+        // Use zero instead of null for some data due to Gotcha in Pageviews API:
+        //   https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageview_API#Gotchas
+        // For today or yesterday, do use null as the data may not be available yet
+        var counter = 0;
+        for (var date = moment(startDate); date <= endDate; date.add(1, dateType)) {
+          if (!dataset.data[counter]) {
+            var edgeCase = !_this6.isMonthly() && (date.isSame(_this6.maxDate) || date.isSame(moment(_this6.maxDate).subtract(1, 'day')));
+            var zeroValue = _this6.isLogarithmic() ? null : 0;
+            dataset.data[counter] = edgeCase ? null : zeroValue;
+          }
+          counter++;
         }
 
-        return data;
+        // Make sure Select2 colours match those in the chart and legend
+        var select2Index = select2Values.indexOf(dataset.label);
+        // In some cases (when all-projects is selected in Siteviews)
+        //   the dataset name may not be in Select2, so just go off of the iteration index
+        var colorIndex = (select2Index === -1 ? index : select2Index) % 10;
+        var color = _this6.config.colors[colorIndex];
+
+        return Object.assign(dataset, {
+          color: color
+        }, _this6.config.chartConfig[_this6.chartType].dataset(color));
+      });
+    }
+
+    /**
+     * Get url to query the API based on app and options
+     * @param {String} entity - name of entity we're querying for (page name or project name)
+     * @param {moment} startDate - start date
+     * @param {moment} endDate - end date
+     * @return {String} the URL
+     */
+
+  }, {
+    key: 'getApiUrl',
+    value: function getApiUrl(entity, startDate, endDate) {
+      var uriEncodedEntityName = encodeURIComponent(entity);
+
+      var granularity = $('#date-type-select').val() || 'daily';
+
+      if (granularity === 'monthly') {
+        endDate = endDate.endOf('month');
       }
 
-      /**
-       * Get data formatted for Chart.js and the legend templates
-       * @param {Array} datasets - as retrieved by getPageViewsData
-       * @param {Array} labels - corresponding labels for the datasets
-       * @param {String} [forceViewKey] - use this view key instead of going off of
-       *   which app we are running or which options are set.
-       * @returns {object} - ready for chart rendering
-       */
+      // Use defaults if options aren't set
+      var platform = this.$platformSelector.val() || this.config.defaults.platform,
+          agent = this.$agentSelector.val() || this.config.defaults.agent;
 
-    }, {
-      key: 'buildChartData',
-      value: function buildChartData(datasets, labels, forceViewKey) {
-        var _this5 = this;
-
-        var viewKey = void 0;
-        var dateFormat = this.isMonthly() ? 'YYYY-MM' : 'YYYY-MM-DD',
-            dateHeadings = this.getDateHeadings(false); // false to be unlocalized
-
-        // key to use in dataseries varies based on app
-        if (forceViewKey) {
-          viewKey = forceViewKey;
-        } else if (this.isPageviews()) {
-          viewKey = 'views';
-        } else if (this.app === 'mediaviews') {
-          viewKey = 'requests';
-        } else if (this.app === 'metaviews' || this.isPagecounts()) {
-          viewKey = 'count';
+      if (this.app === 'siteviews') {
+        if (this.isPageviews()) {
+          return 'https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/' + uriEncodedEntityName + ('/' + platform + '/' + agent + '/' + granularity) + ('/' + startDate.format(this.config.timestampFormat) + '/' + endDate.format(this.config.timestampFormat));
+        } else if (this.isUniqueDevices()) {
+          return 'https://wikimedia.org/api/rest_v1/metrics/unique-devices/' + uriEncodedEntityName + '/' + (platform + '/' + granularity + '/' + startDate.format(this.config.timestampFormat)) + ('/' + endDate.format(this.config.timestampFormat));
         } else {
-          viewKey = 'devices';
+          return 'https://wikimedia.org/api/rest_v1/metrics/legacy/pagecounts/aggregate/' + uriEncodedEntityName + '/' + (platform + '/' + granularity + '/' + startDate.format(this.config.timestampFormat)) + ('/' + endDate.format(this.config.timestampFormat));
         }
-
-        return datasets.map(function (dataset, index) {
-          /** Build the article's dataset. */
-          var values = new Array(dateHeadings.length),
-              sum = 0,
-              min = void 0,
-              max = 0;
-
-          dataset.forEach(function (elem) {
-            // Due to a GOTCHA, the API may only return data for certain dates in the requested date range,
-            //  so here we line them up with the requested date range and fill in zeros for the missing dates
-            var value = elem[viewKey];
-            var date = void 0;
-
-            if (_this5.app === 'metaviews') {
-              date = elem.date;
-            } else {
-              date = moment(elem.timestamp, _this5.config.timestampFormat).format(dateFormat);
-            }
-
-            values[dateHeadings.indexOf(date)] = value;
-            sum += value || 0;
-            if (value > max) max = value;
-            if (min === undefined || value < min) min = value;
-          });
-
-          var average = Math.round(sum / dateHeadings.length),
-              label = labels[index].descore();
-
-          var entityInfo = _this5.entityInfo && _this5.entityInfo.entities ? _this5.entityInfo.entities[label] : {};
-
-          dataset = Object.assign({
-            label: label,
-            data: values,
-            value: sum, // duplicated because Chart.js wants a single `value` for circular charts
-            sum: sum,
-            average: average,
-            median: _this5.getMedian(values),
-            max: max,
-            min: min
-          }, entityInfo);
-
-          return dataset;
-        });
+      } else {
+        return 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/' + this.project + ('/' + platform + '/' + agent + '/' + uriEncodedEntityName + '/' + granularity) + ('/' + startDate.format(this.config.timestampFormat) + '/' + endDate.format(this.config.timestampFormat));
       }
-
-      /**
-       * Get the median of the given dataset.
-       * @param  {object|array} dataset If object, assumes the values are the pageviews.
-       * @return {integer}
-       */
-
-    }, {
-      key: 'getMedian',
-      value: function getMedian(dataset) {
-        var sortedValues = Object.values(dataset).sort(function (a, b) {
-          return a - b;
-        }),
-            half = Math.floor(sortedValues.length / 2);
-
-        return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2.0;
-      }
-
-      /**
-       * Set colors for each dataset based on the config for that chart type.
-       * This is because when removing entities from Select2, the only thing
-       *   thing that needs doing is to set the colors based on how many entities we have
-       * This function also sets null where there are zeros if we're showing a log chart,
-       *   and otherwise fills in zeros where there are nulls (due to API caveat)
-       * @param {Object} outputData - should be hte same as this.outputData
-       * @returns {Object} transformed data
-       */
-
-    }, {
-      key: 'setColorsAndLogValues',
-      value: function setColorsAndLogValues(outputData) {
-        var _this6 = this;
-
-        // don't try to plot zeros on a logarithmic chart
-        var startDate = moment(this.daterangepicker.startDate),
-            endDate = moment(this.daterangepicker.endDate),
-            dateType = this.isMonthly() ? 'month' : 'day',
-
-        // This is used to make sure Select2 colours match those in the chart and legend,
-        //   though in some cases (all-projects in Siteviews) the Select2 control may be empty
-        //   so we instead use an empty array
-        select2Values = this.getEntities().map(function (title) {
-          return title.descore();
-        });
-
-        return outputData.map(function (dataset, index) {
-          // Use zero instead of null for some data due to Gotcha in Pageviews API:
-          //   https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageview_API#Gotchas
-          // For today or yesterday, do use null as the data may not be available yet
-          var counter = 0;
-          for (var date = moment(startDate); date <= endDate; date.add(1, dateType)) {
-            if (!dataset.data[counter]) {
-              var edgeCase = !_this6.isMonthly() && (date.isSame(_this6.maxDate) || date.isSame(moment(_this6.maxDate).subtract(1, 'day')));
-              var zeroValue = _this6.isLogarithmic() ? null : 0;
-              dataset.data[counter] = edgeCase ? null : zeroValue;
-            }
-            counter++;
-          }
-
-          // Make sure Select2 colours match those in the chart and legend
-          var select2Index = select2Values.indexOf(dataset.label);
-          // In some cases (when all-projects is selected in Siteviews)
-          //   the dataset name may not be in Select2, so just go off of the iteration index
-          var colorIndex = (select2Index === -1 ? index : select2Index) % 10;
-          var color = _this6.config.colors[colorIndex];
-
-          return Object.assign(dataset, {
-            color: color
-          }, _this6.config.chartConfig[_this6.chartType].dataset(color));
-        });
-      }
-
-      /**
-       * Get url to query the API based on app and options
-       * @param {String} entity - name of entity we're querying for (page name or project name)
-       * @param {moment} startDate - start date
-       * @param {moment} endDate - end date
-       * @return {String} the URL
-       */
-
-    }, {
-      key: 'getApiUrl',
-      value: function getApiUrl(entity, startDate, endDate) {
-        var uriEncodedEntityName = encodeURIComponent(entity);
-
-        var granularity = $('#date-type-select').val() || 'daily';
-
-        if (granularity === 'monthly') {
-          endDate = endDate.endOf('month');
-        }
-
-        // Use defaults if options aren't set
-        var platform = this.$platformSelector.val() || this.config.defaults.platform,
-            agent = this.$agentSelector.val() || this.config.defaults.agent;
-
-        if (this.app === 'siteviews') {
-          if (this.isPageviews()) {
-            return 'https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/' + uriEncodedEntityName + ('/' + platform + '/' + agent + '/' + granularity) + ('/' + startDate.format(this.config.timestampFormat) + '/' + endDate.format(this.config.timestampFormat));
-          } else if (this.isUniqueDevices()) {
-            return 'https://wikimedia.org/api/rest_v1/metrics/unique-devices/' + uriEncodedEntityName + '/' + (platform + '/' + granularity + '/' + startDate.format(this.config.timestampFormat)) + ('/' + endDate.format(this.config.timestampFormat));
-          } else {
-            return 'https://wikimedia.org/api/rest_v1/metrics/legacy/pagecounts/aggregate/' + uriEncodedEntityName + '/' + (platform + '/' + granularity + '/' + startDate.format(this.config.timestampFormat)) + ('/' + endDate.format(this.config.timestampFormat));
-          }
-        } else {
-          return 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/' + this.project + ('/' + platform + '/' + agent + '/' + uriEncodedEntityName + '/' + granularity) + ('/' + startDate.format(this.config.timestampFormat) + '/' + endDate.format(this.config.timestampFormat));
-        }
-      }
-
-      /**
-       * Should be called at the top of processInput() in chart-related apps.
-       * @param {boolean} force - Whether to force the chart to re-render, even if no params have changed.
-       * @return {array|boolean} False if there's nothing to be rendered (child function should also short-circuit),
-       *   or the list of entities fetched from the Select2 input.
-       */
-
-    }, {
-      key: 'beforeProcessInput',
-      value: function beforeProcessInput(force) {
-        this.pushParams();
-
-        /** Prevent duplicate querying due to conflicting listeners. */
-        if (!force && location.search === this.params && this.prevChartType === this.chartType) {
-          return false;
-        }
-
-        this.params = location.search;
-        var entities = this.getEntities();
-
-        if (!entities.length) {
-          this.resetView();
-          return false;
-        }
-
-        this.patchUsage();
-
-        this.setInitialChartType(entities.length);
-
-        // Clear out old error messages unless the is the first time rendering the chart.
-        if (this.prevChartType) this.clearMessages();
-
-        this.prevChartType = this.chartType;
-        this.destroyChart();
-        this.startSpinny(); // show spinny and capture against fatal errors
-
-        return entities;
-      }
-
-      /**
-       * Mother function for querying the API and processing data
-       * @param  {Array}  entities - list of page names, or projects for Siteviews
-       * @return {Deferred} Promise resolving with pageviews data and errors, if present
-       */
-
-    }, {
-      key: 'getPageViewsData',
-      value: function getPageViewsData(entities) {
-        var _this7 = this;
-
-        var dfd = $.Deferred(),
-            count = 0,
-            failureRetries = {},
-            totalRequestCount = entities.length,
-            failedEntities = [];
-
-        var startDate = this.daterangepicker.startDate.startOf('day'),
-            endDate = this.daterangepicker.endDate.startOf('day');
-
-        /**
-         * Everything we need to keep track of for the promises.
-         * @type {Object}
-         */
-        var xhrData = {
-          entities: entities,
-          labels: [], // Labels (dates) for the x-axis.
-          datasets: new Array(totalRequestCount), // Data for each article timeseries
-          errors: [], // Queue up errors to show after all requests have been made
-          fatalErrors: [], // Unrecoverable JavaScript errors
-          promises: []
-        };
-
-        var makeRequest = function makeRequest(entity) {
-          var url = _this7.getApiUrl(entity, startDate, endDate),
-              promise = $.ajax({ url: url, dataType: 'json' });
-
-          xhrData.promises.push(promise);
-
-          promise.done(function (successData) {
-            try {
-              var entityIndex = xhrData.entities.indexOf(entity);
-              xhrData.datasets[entityIndex] = successData.items;
-
-              /** fetch the labels for the x-axis on success if we haven't already */
-              if (successData.items && !xhrData.labels.length) {
-                xhrData.labels = successData.items.map(function (elem) {
-                  return moment(elem.timestamp, _this7.config.timestampFormat).format(_this7.dateFormat);
-                });
-              }
-            } catch (err) {
-              return xhrData.fatalErrors.push(err);
-            }
-          }).fail(function (errorData) {
-            /** first detect if this was a Cassandra backend error, and if so, schedule a re-try */
-            var errorMessage = errorData.responseJSON && errorData.responseJSON.title ? errorData.responseJSON.title : $.i18n('unknown');
-            var cassandraError = errorMessage === 'Error in Cassandra table storage backend';
-
-            if (cassandraError) {
-              if (failureRetries[entity]) {
-                failureRetries[entity]++;
-              } else {
-                failureRetries[entity] = 1;
-              }
-
-              /** maximum of 3 retries */
-              if (failureRetries[entity] < 3) {
-                totalRequestCount++;
-                return _this7.rateLimit(makeRequest, _this7.config.apiThrottle, _this7)(entity);
-              }
-            }
-
-            // remove this article from the list of entities to analyze
-            var entityIndex = xhrData.entities.indexOf(entity);
-            xhrData.entities.splice(entityIndex, 1);
-            xhrData.datasets.splice(entityIndex, 1);
-
-            if (cassandraError) {
-              failedEntities.push(entity);
-            } else {
-              if (_this7.app === 'pageviews' && errorData.status === 404) {
-                // check if it is a new page, and if so show a message that the data isn't available yet
-                $.ajax({
-                  url: 'https://' + _this7.project + '.org/w/api.php?action=query&prop=revisions&rvprop=timestamp' + ('&rvdir=newer&rvlimit=1&formatversion=2&format=json&titles=' + entity),
-                  dataType: 'jsonp'
-                }).then(function (data) {
-                  var dateCreated = data.query.pages[0].revisions ? data.query.pages[0].revisions[0].timestamp : null;
-                  if (dateCreated && moment(dateCreated).isAfter(_this7.maxDate)) {
-                    var faqLink = '<a href=\'/pageviews/faq#todays_data\'>' + $.i18n('learn-more').toLowerCase() + '</a>';
-                    _this7.toastWarn($.i18n('new-article-warning', faqLink));
-                  }
-                });
-              }
-
-              var link = _this7.app === 'siteviews' ? _this7.getSiteLink(entity) : _this7.getPageLink(entity, _this7.project);
-
-              // user-friendly error messages
-              var endpoint = 'pageviews';
-              if (_this7.isUniqueDevices()) {
-                endpoint = 'unique-devices';
-              } else if (_this7.isPagecounts()) {
-                endpoint = 'pagecounts';
-              }
-              xhrData.errors.push(link + ': ' + $.i18n('api-error', endpoint.upcase() + ' API') + ' - ' + errorMessage);
-            }
-          }).always(function () {
-            if (++count === totalRequestCount) {
-              _this7.pageViewsData = xhrData;
-              dfd.resolve(xhrData);
-
-              if (failedEntities.length) {
-                _this7.writeMessage($.i18n('api-error-timeout', '<ul>' + failedEntities.map(function (failedEntity) {
-                  return '<li>' + _this7.getPageLink(failedEntity, _this7.project.escape()) + '</li>';
-                }).join('') + '</ul>'));
-              }
-            }
-          });
-        };
-
-        entities.forEach(function (entity) {
-          return makeRequest(entity);
-        });
-
-        return dfd;
-      }
-
-      /**
-       * Get params needed to create a permanent link of visible data
-       * @return {Object} hash of params
-       */
-
-    }, {
-      key: 'getPermaLink',
-      value: function getPermaLink() {
-        var params = this.getParams(false);
-        delete params.range;
-        return params;
-      }
-
-      /**
-       * Is the date type set to monthly?
-       * @return {Boolean} true or false
-       */
-
-    }, {
-      key: 'isMonthly',
-      value: function isMonthly() {
-        return $('#date-type-select').val() === 'monthly';
-      }
-
-      /**
-       * Are we currently in logarithmic mode?
-       * @returns {Boolean} true or false
-       */
-
-    }, {
-      key: 'isLogarithmic',
-      value: function isLogarithmic() {
-        return this.$logarithmicCheckbox.is(':checked') && this.isLogarithmicCapable();
-      }
-
-      /**
-       * Test if the current chart type supports a logarithmic scale
-       * @returns {Boolean} log-friendly or not
-       */
-
-    }, {
-      key: 'isLogarithmicCapable',
-      value: function isLogarithmicCapable() {
-        return ['line', 'bar'].includes(this.chartType);
-      }
-
-      /**
-       * Print the chart!
-       */
-
-    }, {
-      key: 'printChart',
-      value: function printChart() {
-        var tab = window.open();
-        tab.document.write('<img src="' + this.chartObj.toBase64Image() + '" />');
-        tab.print();
-        tab.close();
-      }
-
-      /**
-       * Removes chart, messages, and resets site selections
-       * @param {boolean} [select2] whether or not to clear the Select2 input
-       * @param {boolean} [clearMessages] whether or not to clear any existing errors from view
-       */
-
-    }, {
-      key: 'resetView',
-      value: function resetView() {
-        var select2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var clearMessages = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-        try {
-          /** these can fail sometimes */
-          this.destroyChart();
-          if (select2) this.resetSelect2();
-        } catch (e) {// nothing
-        } finally {
-          this.stopSpinny();
-          $('body').addClass('initial');
-          this.$chart.hide();
-          if (clearMessages) this.clearMessages();
-        }
-      }
-
-      /**
-       * Attempt to fine-tune the pointer detection spacing based on how cluttered the chart is
-       */
-
-    }, {
-      key: 'setChartPointDetectionRadius',
-      value: function setChartPointDetectionRadius() {
-        if (this.chartType !== 'line') return;
-
-        var numTicks = this.getDateHeadings().length;
-
-        if (numTicks > 50) {
-          Chart.defaults.global.elements.point.hitRadius = 3;
-        } else if (numTicks > 30) {
-          Chart.defaults.global.elements.point.hitRadius = 5;
-        } else if (numTicks > 20) {
-          Chart.defaults.global.elements.point.hitRadius = 10;
-        } else {
-          Chart.defaults.global.elements.point.hitRadius = 30;
-        }
-      }
-
-      /**
-       * Determine if we should show a logarithmic chart for the given dataset, based on Theil index
-       * @param  {Array} datasets - pageviews
-       * @return {Boolean} yes or no
-       */
-
-    }, {
-      key: 'shouldBeLogarithmic',
-      value: function shouldBeLogarithmic(datasets) {
-        var _ref;
-
-        if (!this.isLogarithmicCapable() || this.noLogScale) {
-          return false;
-        }
-
-        var sets = [];
-        // convert NaNs and nulls to zeros
-        datasets.forEach(function (dataset) {
-          sets.push(dataset.map(function (val) {
-            return val || 0;
-          }));
-        });
-
-        // overall max value
-        var maxValue = Math.max.apply(Math, _toConsumableArray((_ref = []).concat.apply(_ref, sets)));
-
-        if (maxValue <= 10) return false;
-
-        var logarithmicNeeded = false;
-
-        sets.forEach(function (set) {
-          set.push(maxValue);
-
-          var sum = set.reduce(function (a, b) {
-            return a + b;
-          }),
-              average = sum / set.length;
-          var theil = 0;
-          set.forEach(function (v) {
-            return theil += v ? v * Math.log(v / average) : 0;
-          });
-
-          if (theil / sum > 0.5) {
-            return logarithmicNeeded = true;
-          }
-        });
-
-        return logarithmicNeeded;
-      }
-
-      /**
-       * Setup the Select2 input.
-       * @param {Object} params that would be passed to the select2 library.
-       */
-
-    }, {
-      key: 'setupSelect2',
-      value: function setupSelect2(params) {
-        var _this8 = this;
-
-        this.$select2Input.select2(params);
-        this.$select2Input.off('select2:select').on('select2:select', this.processInput.bind(this));
-        this.$select2Input.off('select2:unselect').on('select2:unselect', function (e) {
-          _this8.processInput(false, e.params.data.text);
-          _this8.$select2Input.trigger('select2:close');
-        });
-      }
-
-      /**
-       * sets up the daterange selector and adds listeners
-       */
-
-    }, {
-      key: 'setupDateRangeSelector',
-      value: function setupDateRangeSelector() {
-        var _this9 = this;
-
-        _get(_class.prototype.__proto__ || Object.getPrototypeOf(_class.prototype), 'setupDateRangeSelector', this).call(this);
-
-        /** prevent duplicate setup since the list view apps also use charts */
-        if (!this.isChartApp()) return;
-
-        var dateRangeSelector = this.$dateRangeSelector;
-
-        /** the "Latest N days" links */
-        $('.date-latest a').on('click', function (e) {
-          var value = $(e.target).data('value');
-          _this9.setSpecialRange('latest-' + value);
-          $('.latest-text').text($.i18n('latest-days', value));
-        });
-
-        dateRangeSelector.on('change', function (e) {
-          _this9.processInput();
-          $('.latest-text').text($.i18n('latest'));
-
-          /** clear out specialRange if it doesn't match our input */
-          if (_this9.specialRange && _this9.specialRange.value !== e.target.value) {
-            _this9.specialRange = null;
-          }
-        });
-      }
-
-      /**
-       * Set up month selector and listeners
-       * @param  {Date} start - date to set as the start month (should be 1st of the month)
-       * @param  {Date} end - date to set as the end month (should be 1st of the month)
-       */
-
-    }, {
-      key: 'setupMonthSelector',
-      value: function setupMonthSelector(start, end) {
-        var _this10 = this;
-
-        // destroy old datepicker, if present
-        if (this.monthDatepicker) {
-          this.monthDatepicker.destroy();
-        }
-
-        $('.month-selector').datepicker({
-          autoclose: true,
-          format: 'M yyyy',
-          viewMode: 'months',
-          minViewMode: 'months',
-          startDate: this.minDate.toDate(),
-          endDate: this.maxMonth,
-          disableTouchKeyboard: true
-        });
-
-        start = start || this.initialMonthStart;
-        end = end || this.maxMonth;
-
-        var validateDates = function validateDates(start, end) {
-          if (start < _this10.minDate.toDate()) start = _this10.minDate;
-          if (end > _this10.maxMonth) end = _this10.maxMonth;
-          if (end < start || start > end) {
-            start = end;
-          }
-          return [start, end];
-        };
-
-        var _validateDates = validateDates(start, end);
-
-        var _validateDates2 = _slicedToArray(_validateDates, 2);
-
-        start = _validateDates2[0];
-        end = _validateDates2[1];
-
-
-        this.monthStartDatepicker.setDate(start);
-        this.monthEndDatepicker.setDate(end);
-
-        this.daterangepicker.startDate = moment(start).startOf('month');
-        this.daterangepicker.setEndDate(moment(end).endOf('month'));
-
-        var setDates = function setDates() {
-          var _validateDates3 = validateDates(_this10.monthStartDatepicker.getDate(), _this10.monthEndDatepicker.getDate()),
-              _validateDates4 = _slicedToArray(_validateDates3, 2),
-              start = _validateDates4[0],
-              end = _validateDates4[1];
-
-          _this10.daterangepicker.startDate = moment(start).startOf('month');
-          _this10.daterangepicker.setEndDate(moment(end).endOf('month'));
-        };
-
-        $('.month-selector-start').on('hide', setDates);
-        $('.month-selector-end').on('hide', setDates);
-      }
-
-      /**
-       * Get currently selected start and end dates as moment objects
-       * @param {Boolean} [format] - if true, will return YYYY-MM for months, YYYY-MM-DD for dates
-       * @returns {Array} array containing the start and end date as moment objects or strings if `format` is set
-       */
-
-    }, {
-      key: 'getDates',
-      value: function getDates() {
-        var format = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-        var startDate = void 0,
-            endDate = void 0,
-            dateFormat = 'YYYY-MM-DD';
-
-        if (this.isMonthly()) {
-          startDate = moment(this.monthStartDatepicker.getDate());
-          endDate = moment(this.monthEndDatepicker.getDate());
-          dateFormat = 'YYYY-MM';
-        } else {
-          startDate = this.daterangepicker.startDate;
-          endDate = this.daterangepicker.endDate;
-        }
-
-        if (format) {
-          startDate = startDate.format(dateFormat);
-          endDate = endDate.format(dateFormat);
-        }
-
-        return [startDate, endDate];
-      }
-
-      /**
-       * Called at the top of updateTable() in the chart-only apps.
-       * @return {boolean|array} False if short-circuited, otherwise the sorted datasets.Z
-       */
-
-    }, {
-      key: 'beforeUpdateTable',
-      value: function beforeUpdateTable() {
-        var _this11 = this;
-
-        if (this.outputData.length === 1) {
-          this.showSingleEntityLegend();
-          return false;
-        } else {
-          $('.single-entity-stats').html('');
-
-          if (['pageviews', 'siteviews'].includes(this.app)) {
-            $('.single-entity-ranking').html('');
-          }
-        }
-
-        this.$outputList.html('');
-
-        /** sort ascending by current sort setting, using slice() to clone the array */
-        var datasets = this.outputData.slice().sort(function (a, b) {
-          var before = _this11.getSortProperty(a, _this11.sort),
-              after = _this11.getSortProperty(b, _this11.sort);
-
-          if (before < after) {
-            return _this11.direction;
-          } else if (before > after) {
-            return -_this11.direction;
-          } else {
-            return 0;
-          }
-        });
-
-        $('.sort-link .glyphicon').removeClass('glyphicon-sort-by-alphabet-alt glyphicon-sort-by-alphabet').addClass('glyphicon-sort');
-        var newSortClassName = parseInt(this.direction, 10) === 1 ? 'glyphicon-sort-by-alphabet-alt' : 'glyphicon-sort-by-alphabet';
-        $('.sort-link--' + this.sort + ' .glyphicon').addClass(newSortClassName).removeClass('glyphicon-sort');
-
-        return datasets;
-      }
-
-      /**
-       * Update the chart with data provided by processInput()
-       * @param {Object} [xhrData] - data as constructed by processInput()
-       *   data is omitted if we already have everything we need in this.outputData
-       * @returns {null}
-       */
-
-    }, {
-      key: 'updateChart',
-      value: function updateChart(xhrData) {
-        var _this12 = this;
-
-        $('.chart-legend').html(''); // clear old chart legend
-        var entityNames = xhrData ? xhrData.entities : this.$select2Input.val();
-
-        // show pending error messages if present, exiting if fatal
-        if (xhrData && this.showErrors(xhrData)) return;
-
-        if (!entityNames.length) {
-          return this.stopSpinny();
-        } else if (entityNames.length === 1) {
-          $('.multi-page-chart-node').hide();
-        } else {
-          $('.multi-page-chart-node').show();
-        }
-
-        if (xhrData) {
-          this.outputData = this.buildChartData(xhrData.datasets, entityNames);
-        }
-
-        // first figure out if we should use a log chart
-        if (this.autoLogDetection === 'true') {
-          var shouldBeLogarithmic = this.shouldBeLogarithmic(this.outputData.map(function (set) {
-            return set.data;
-          }));
-          this.$logarithmicCheckbox.prop('checked', shouldBeLogarithmic);
-          $('.begin-at-zero').toggleClass('disabled', shouldBeLogarithmic);
-        }
-
-        // set colors for datasets, and fill in nulls where there are zeros if log chart
-        this.outputData = this.setColorsAndLogValues(this.outputData);
-
-        var options = Object.assign({ scales: {} }, this.config.chartConfig[this.chartType].opts, this.config.globalChartOpts);
-
-        if (this.isLogarithmic()) {
-          options.scales = Object.assign({}, options.scales, {
-            yAxes: [{
-              type: 'logarithmic',
-              ticks: {
-                callback: function callback(value, index, arr) {
-                  var remain = value / Math.pow(10, Math.floor(Chart.helpers.log10(value)));
-
-                  if (remain === 1 || remain === 2 || remain === 5 || index === 0 || index === arr.length - 1) {
-                    return _this12.formatNumber(value);
-                  } else {
-                    return '';
-                  }
-                }
-              }
-            }]
-          });
-        }
-
-        this.stopSpinny();
-
-        try {
-          $('.chart-container').html('').append("<canvas id='chart'>");
-          this.setChartPointDetectionRadius();
-          var context = this.$chart[0].getContext('2d');
-          var grandMin = Math.min.apply(Math, _toConsumableArray(this.outputData.map(function (d) {
-            return d.min;
-          })));
-
-          if (this.config.linearCharts.includes(this.chartType)) {
-            var linearData = {
-              labels: this.getDateHeadings(),
-              datasets: this.outputData,
-              dateFormat: this.dateFormat // so it will be accessible in zoom_plugin.js
-            };
-
-            if (this.chartType === 'radar') {
-              options.scale.ticks.beginAtZero = grandMin === 0 || $('.begin-at-zero-option').is(':checked');
-            } else {
-              options.scales.yAxes[0].ticks.beginAtZero = grandMin === 0 || $('.begin-at-zero-option').is(':checked');
-              options.zoom = ['pageviews', 'siteviews', 'mediaviews'].includes(this.app) && this.numDaysInRange() > 1 && !this.isMonthly();
-            }
-
-            // Show labels if option is checked (for linear charts only)
-            if ($('.show-labels-option').is(':checked')) {
-              options = this.showPointLabels(options);
-            } else {
-              delete options.animation.onComplete;
-              delete options.animation.onProgress;
-            }
-
-            this.chartObj = new Chart(context, {
-              type: this.chartType,
-              data: linearData,
-              options: options
-            });
-          } else {
-            // in case these were set when changing from linear chart type
-            delete options.animation.onComplete;
-            delete options.animation.onProgress;
-            this.chartObj = new Chart(context, {
-              type: this.chartType,
-              data: {
-                labels: this.outputData.map(function (d) {
-                  return d.label;
-                }),
-                datasets: [{
-                  data: this.outputData.map(function (d) {
-                    return d.value;
-                  }),
-                  backgroundColor: this.outputData.map(function (d) {
-                    return d.backgroundColor;
-                  }),
-                  hoverBackgroundColor: this.outputData.map(function (d) {
-                    return d.hoverBackgroundColor;
-                  }),
-                  averages: this.outputData.map(function (d) {
-                    return d.average;
-                  })
-                }]
-              },
-              options: options
-            });
-          }
-        } catch (err) {
-          return this.showErrors({
-            errors: [],
-            fatalErrors: [err]
-          });
-        }
-
-        $('.chart-legend').html(this.chartObj.generateLegend());
-        $('.data-links').removeClass('invisible');
-
-        if (['metaviews', 'pageviews', 'siteviews', 'mediaviews'].includes(this.app)) {
-          this.updateTable();
-        }
-      }
-
-      /**
-       * Show the values each point in the series
-       * Courtesy of Hung Tran: http://stackoverflow.com/a/38797712/604142
-       * @param {Object} options - to be passed to Chart instantiation
-       * @returns {Object} modified options
-       */
-
-    }, {
-      key: 'showPointLabels',
-      value: function showPointLabels(options) {
-        var _this13 = this;
-
-        if (!['bar', 'line'].includes(this.chartType)) return;
-
-        var modifyCtx = function modifyCtx(ctx) {
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillStyle = '#444';
-          ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-          return ctx;
-        };
-
-        var drawValue = function drawValue(context, step) {
-          var chartInstance = context.chart;
-          var ctx = modifyCtx(chartInstance.ctx);
-
-          Chart.helpers.each(context.data.datasets.forEach(function (dataset, i) {
-            var meta = chartInstance.controller.getDatasetMeta(i);
-            Chart.helpers.each(meta.data.forEach(function (bar, index) {
-              ctx.fillStyle = 'rgba(68,68,68,' + step + ')';
-              var scaleMax = dataset._meta[Object.keys(dataset._meta)[0]].data[index]._yScale.maxHeight;
-              var yPos = (scaleMax - bar._model.y) / scaleMax >= 0.93 ? bar._model.y + 5 : bar._model.y - 10;
-              ctx.fillText(_this13.n(dataset.data[index]), bar._model.x, yPos);
-            }), context);
-          }), context);
-        };
-
-        options.animation.onComplete = function () {
-          drawValue(this, 1);
-        };
-
-        options.animation.onProgress = function (state) {
-          var animation = state.animationObject;
-          drawValue(this, animation.currentStep / animation.numSteps);
-        };
-
-        return options;
-      }
-
-      /**
-       * Show errors built in this.processInput
-       * @param {object} xhrData - as built by this.processInput, like `{ errors: [], fatalErrors: [] }`
-       * @returns {boolean} whether or not fatal errors occured
-       */
-
-    }, {
-      key: 'showErrors',
-      value: function showErrors(xhrData) {
-        var _this14 = this;
-
-        if (xhrData.fatalErrors.length) {
-          this.resetView(true);
-          var fatalErrors = xhrData.fatalErrors.unique();
-          this.showFatalErrors(fatalErrors);
-
-          return true;
-        }
-
-        if (xhrData.errors.length) {
-          // if everything failed, reset the view, clearing out space taken up by empty chart
-          if (xhrData.entities && (xhrData.errors.length === xhrData.entities.length || !xhrData.entities.length)) {
-            this.resetView();
-          }
-
-          xhrData.errors.unique().forEach(function (error) {
-            return _this14.writeMessage(error);
-          });
-        }
-
+    }
+
+    /**
+     * Should be called at the top of processInput() in chart-related apps.
+     * @param {boolean} force - Whether to force the chart to re-render, even if no params have changed.
+     * @return {array|boolean} False if there's nothing to be rendered (child function should also short-circuit),
+     *   or the list of entities fetched from the Select2 input.
+     */
+
+  }, {
+    key: 'beforeProcessInput',
+    value: function beforeProcessInput(force) {
+      this.pushParams();
+
+      /** Prevent duplicate querying due to conflicting listeners. */
+      if (!force && location.search === this.params && this.prevChartType === this.chartType) {
         return false;
       }
 
+      this.params = location.search;
+      var entities = this.getEntities();
+
+      if (!entities.length) {
+        this.resetView();
+        return false;
+      }
+
+      this.patchUsage();
+
+      this.setInitialChartType(entities.length);
+
+      // Clear out old error messages unless the is the first time rendering the chart.
+      if (this.prevChartType) this.clearMessages();
+
+      this.prevChartType = this.chartType;
+      this.destroyChart();
+      this.startSpinny(); // show spinny and capture against fatal errors
+
+      return entities;
+    }
+
+    /**
+     * Mother function for querying the API and processing data
+     * @param  {Array}  entities - list of page names, or projects for Siteviews
+     * @return {Deferred} Promise resolving with pageviews data and errors, if present
+     */
+
+  }, {
+    key: 'getPageViewsData',
+    value: function getPageViewsData(entities) {
+      var _this7 = this;
+
+      var dfd = $.Deferred(),
+          count = 0,
+          failureRetries = {},
+          totalRequestCount = entities.length,
+          failedEntities = [];
+
+      var startDate = this.daterangepicker.startDate.startOf('day'),
+          endDate = this.daterangepicker.endDate.startOf('day');
+
       /**
-       * Listeners specific to chart-based apps.
-       * @override
+       * Everything we need to keep track of for the promises.
+       * @type {Object}
        */
+      var xhrData = {
+        entities: entities,
+        labels: [], // Labels (dates) for the x-axis.
+        datasets: new Array(totalRequestCount), // Data for each article timeseries
+        errors: [], // Queue up errors to show after all requests have been made
+        fatalErrors: [], // Unrecoverable JavaScript errors
+        promises: []
+      };
 
-    }, {
-      key: 'setupListeners',
-      value: function setupListeners() {
-        var _this15 = this;
+      var makeRequest = function makeRequest(entity) {
+        var url = _this7.getApiUrl(entity, startDate, endDate),
+            promise = $.ajax({ url: url, dataType: 'json' });
 
-        $('.clear-pages').on('click', function () {
-          _this15.resetView(true);
-          _this15.focusSelect2();
+        xhrData.promises.push(promise);
+
+        promise.done(function (successData) {
+          try {
+            var entityIndex = xhrData.entities.indexOf(entity);
+            xhrData.datasets[entityIndex] = successData.items;
+
+            /** fetch the labels for the x-axis on success if we haven't already */
+            if (successData.items && !xhrData.labels.length) {
+              xhrData.labels = successData.items.map(function (elem) {
+                return moment(elem.timestamp, _this7.config.timestampFormat).format(_this7.dateFormat);
+              });
+            }
+          } catch (err) {
+            return xhrData.fatalErrors.push(err);
+          }
+        }).fail(function (errorData) {
+          /** first detect if this was a Cassandra backend error, and if so, schedule a re-try */
+          var errorMessage = errorData.responseJSON && errorData.responseJSON.title ? errorData.responseJSON.title : $.i18n('unknown');
+          var cassandraError = errorMessage === 'Error in Cassandra table storage backend';
+
+          if (cassandraError) {
+            if (failureRetries[entity]) {
+              failureRetries[entity]++;
+            } else {
+              failureRetries[entity] = 1;
+            }
+
+            /** maximum of 3 retries */
+            if (failureRetries[entity] < 3) {
+              totalRequestCount++;
+              return _this7.rateLimit(makeRequest, _this7.config.apiThrottle, _this7)(entity);
+            }
+          }
+
+          // remove this article from the list of entities to analyze
+          var entityIndex = xhrData.entities.indexOf(entity);
+          xhrData.entities.splice(entityIndex, 1);
+          xhrData.datasets.splice(entityIndex, 1);
+
+          if (cassandraError) {
+            failedEntities.push(entity);
+          } else {
+            if (_this7.app === 'pageviews' && errorData.status === 404) {
+              // check if it is a new page, and if so show a message that the data isn't available yet
+              $.ajax({
+                url: 'https://' + _this7.project + '.org/w/api.php?action=query&prop=revisions&rvprop=timestamp' + ('&rvdir=newer&rvlimit=1&formatversion=2&format=json&titles=' + entity),
+                dataType: 'jsonp'
+              }).then(function (data) {
+                var dateCreated = data.query.pages[0].revisions ? data.query.pages[0].revisions[0].timestamp : null;
+                if (dateCreated && moment(dateCreated).isAfter(_this7.maxDate)) {
+                  var faqLink = '<a href=\'/pageviews/faq#todays_data\'>' + $.i18n('learn-more').toLowerCase() + '</a>';
+                  _this7.toastWarn($.i18n('new-article-warning', faqLink));
+                }
+              });
+            }
+
+            var link = _this7.app === 'siteviews' ? _this7.getSiteLink(entity) : _this7.getPageLink(entity, _this7.project);
+
+            // user-friendly error messages
+            var endpoint = 'pageviews';
+            if (_this7.isUniqueDevices()) {
+              endpoint = 'unique-devices';
+            } else if (_this7.isPagecounts()) {
+              endpoint = 'pagecounts';
+            }
+            xhrData.errors.push(link + ': ' + $.i18n('api-error', endpoint.upcase() + ' API') + ' - ' + errorMessage);
+          }
+        }).always(function () {
+          if (++count === totalRequestCount) {
+            _this7.pageViewsData = xhrData;
+            dfd.resolve(xhrData);
+
+            if (failedEntities.length) {
+              _this7.writeMessage($.i18n('api-error-timeout', '<ul>' + failedEntities.map(function (failedEntity) {
+                return '<li>' + _this7.getPageLink(failedEntity, _this7.project.escape()) + '</li>';
+              }).join('') + '</ul>'));
+            }
+          }
+        });
+      };
+
+      entities.forEach(function (entity) {
+        return makeRequest(entity);
+      });
+
+      return dfd;
+    }
+
+    /**
+     * Get params needed to create a permanent link of visible data
+     * @return {Object} hash of params
+     */
+
+  }, {
+    key: 'getPermaLink',
+    value: function getPermaLink() {
+      var params = this.getParams(false);
+      delete params.range;
+      return params;
+    }
+
+    /**
+     * Is the date type set to monthly?
+     * @return {Boolean} true or false
+     */
+
+  }, {
+    key: 'isMonthly',
+    value: function isMonthly() {
+      return $('#date-type-select').val() === 'monthly';
+    }
+
+    /**
+     * Are we currently in logarithmic mode?
+     * @returns {Boolean} true or false
+     */
+
+  }, {
+    key: 'isLogarithmic',
+    value: function isLogarithmic() {
+      return this.$logarithmicCheckbox.is(':checked') && this.isLogarithmicCapable();
+    }
+
+    /**
+     * Test if the current chart type supports a logarithmic scale
+     * @returns {Boolean} log-friendly or not
+     */
+
+  }, {
+    key: 'isLogarithmicCapable',
+    value: function isLogarithmicCapable() {
+      return ['line', 'bar'].includes(this.chartType);
+    }
+
+    /**
+     * Print the chart!
+     */
+
+  }, {
+    key: 'printChart',
+    value: function printChart() {
+      var tab = window.open();
+      tab.document.write('<img src="' + this.chartObj.toBase64Image() + '" />');
+      tab.print();
+      tab.close();
+    }
+
+    /**
+     * Removes chart, messages, and resets site selections
+     * @param {boolean} [select2] whether or not to clear the Select2 input
+     * @param {boolean} [clearMessages] whether or not to clear any existing errors from view
+     */
+
+  }, {
+    key: 'resetView',
+    value: function resetView() {
+      var select2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var clearMessages = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      try {
+        /** these can fail sometimes */
+        this.destroyChart();
+        if (select2) this.resetSelect2();
+      } catch (e) {// nothing
+      } finally {
+        this.stopSpinny();
+        $('body').addClass('initial');
+        this.$chart.hide();
+        if (clearMessages) this.clearMessages();
+      }
+    }
+
+    /**
+     * Attempt to fine-tune the pointer detection spacing based on how cluttered the chart is
+     */
+
+  }, {
+    key: 'setChartPointDetectionRadius',
+    value: function setChartPointDetectionRadius() {
+      if (this.chartType !== 'line') return;
+
+      var numTicks = this.getDateHeadings().length;
+
+      if (numTicks > 50) {
+        Chart.defaults.global.elements.point.hitRadius = 3;
+      } else if (numTicks > 30) {
+        Chart.defaults.global.elements.point.hitRadius = 5;
+      } else if (numTicks > 20) {
+        Chart.defaults.global.elements.point.hitRadius = 10;
+      } else {
+        Chart.defaults.global.elements.point.hitRadius = 30;
+      }
+    }
+
+    /**
+     * Determine if we should show a logarithmic chart for the given dataset, based on Theil index
+     * @param  {Array} datasets - pageviews
+     * @return {Boolean} yes or no
+     */
+
+  }, {
+    key: 'shouldBeLogarithmic',
+    value: function shouldBeLogarithmic(datasets) {
+      var _ref;
+
+      if (!this.isLogarithmicCapable() || this.noLogScale) {
+        return false;
+      }
+
+      var sets = [];
+      // convert NaNs and nulls to zeros
+      datasets.forEach(function (dataset) {
+        sets.push(dataset.map(function (val) {
+          return val || 0;
+        }));
+      });
+
+      // overall max value
+      var maxValue = Math.max.apply(Math, _toConsumableArray((_ref = []).concat.apply(_ref, sets)));
+
+      if (maxValue <= 10) return false;
+
+      var logarithmicNeeded = false;
+
+      sets.forEach(function (set) {
+        set.push(maxValue);
+
+        var sum = set.reduce(function (a, b) {
+          return a + b;
+        }),
+            average = sum / set.length;
+        var theil = 0;
+        set.forEach(function (v) {
+          return theil += v ? v * Math.log(v / average) : 0;
+        });
+
+        if (theil / sum > 0.5) {
+          return logarithmicNeeded = true;
+        }
+      });
+
+      return logarithmicNeeded;
+    }
+
+    /**
+     * Setup the Select2 input.
+     * @param {Object} params that would be passed to the select2 library.
+     */
+
+  }, {
+    key: 'setupSelect2',
+    value: function setupSelect2(params) {
+      var _this8 = this;
+
+      this.$select2Input.select2(params);
+      this.$select2Input.off('select2:select').on('select2:select', this.processInput.bind(this));
+      this.$select2Input.off('select2:unselect').on('select2:unselect', function (e) {
+        _this8.processInput(false, e.params.data.text);
+        _this8.$select2Input.trigger('select2:close');
+      });
+    }
+
+    /**
+     * sets up the daterange selector and adds listeners
+     */
+
+  }, {
+    key: 'setupDateRangeSelector',
+    value: function setupDateRangeSelector() {
+      var _this9 = this;
+
+      _get(ChartHelpers.prototype.__proto__ || Object.getPrototypeOf(ChartHelpers.prototype), 'setupDateRangeSelector', this).call(this);
+
+      /** prevent duplicate setup since the list view apps also use charts */
+      if (!this.isChartApp()) return;
+
+      var dateRangeSelector = this.$dateRangeSelector;
+
+      /** the "Latest N days" links */
+      $('.date-latest a').on('click', function (e) {
+        var value = $(e.target).data('value');
+        _this9.setSpecialRange('latest-' + value);
+        $('.latest-text').text($.i18n('latest-days', value));
+      });
+
+      dateRangeSelector.on('change', function (e) {
+        _this9.processInput();
+        $('.latest-text').text($.i18n('latest'));
+
+        /** clear out specialRange if it doesn't match our input */
+        if (_this9.specialRange && _this9.specialRange.value !== e.target.value) {
+          _this9.specialRange = null;
+        }
+      });
+    }
+
+    /**
+     * Set up month selector and listeners
+     * @param  {Date} start - date to set as the start month (should be 1st of the month)
+     * @param  {Date} end - date to set as the end month (should be 1st of the month)
+     */
+
+  }, {
+    key: 'setupMonthSelector',
+    value: function setupMonthSelector(start, end) {
+      var _this10 = this;
+
+      // destroy old datepicker, if present
+      if (this.monthDatepicker) {
+        this.monthDatepicker.destroy();
+      }
+
+      $('.month-selector').datepicker({
+        autoclose: true,
+        format: 'M yyyy',
+        viewMode: 'months',
+        minViewMode: 'months',
+        startDate: this.minDate.toDate(),
+        endDate: this.maxMonth,
+        disableTouchKeyboard: true
+      });
+
+      start = start || this.initialMonthStart;
+      end = end || this.maxMonth;
+
+      var validateDates = function validateDates(start, end) {
+        if (start < _this10.minDate.toDate()) start = _this10.minDate;
+        if (end > _this10.maxMonth) end = _this10.maxMonth;
+        if (end < start || start > end) {
+          start = end;
+        }
+        return [start, end];
+      };
+
+      var _validateDates = validateDates(start, end);
+
+      var _validateDates2 = _slicedToArray(_validateDates, 2);
+
+      start = _validateDates2[0];
+      end = _validateDates2[1];
+
+
+      this.monthStartDatepicker.setDate(start);
+      this.monthEndDatepicker.setDate(end);
+
+      this.daterangepicker.startDate = moment(start).startOf('month');
+      this.daterangepicker.setEndDate(moment(end).endOf('month'));
+
+      var setDates = function setDates() {
+        var _validateDates3 = validateDates(_this10.monthStartDatepicker.getDate(), _this10.monthEndDatepicker.getDate()),
+            _validateDates4 = _slicedToArray(_validateDates3, 2),
+            start = _validateDates4[0],
+            end = _validateDates4[1];
+
+        _this10.daterangepicker.startDate = moment(start).startOf('month');
+        _this10.daterangepicker.setEndDate(moment(end).endOf('month'));
+      };
+
+      $('.month-selector-start').on('hide', setDates);
+      $('.month-selector-end').on('hide', setDates);
+    }
+
+    /**
+     * Get currently selected start and end dates as moment objects
+     * @param {Boolean} [format] - if true, will return YYYY-MM for months, YYYY-MM-DD for dates
+     * @returns {Array} array containing the start and end date as moment objects or strings if `format` is set
+     */
+
+  }, {
+    key: 'getDates',
+    value: function getDates() {
+      var format = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      var startDate = void 0,
+          endDate = void 0,
+          dateFormat = 'YYYY-MM-DD';
+
+      if (this.isMonthly()) {
+        startDate = moment(this.monthStartDatepicker.getDate());
+        endDate = moment(this.monthEndDatepicker.getDate());
+        dateFormat = 'YYYY-MM';
+      } else {
+        startDate = this.daterangepicker.startDate;
+        endDate = this.daterangepicker.endDate;
+      }
+
+      if (format) {
+        startDate = startDate.format(dateFormat);
+        endDate = endDate.format(dateFormat);
+      }
+
+      return [startDate, endDate];
+    }
+
+    /**
+     * Called at the top of updateTable() in the chart-only apps.
+     * @return {boolean|array} False if short-circuited, otherwise the sorted datasets.Z
+     */
+
+  }, {
+    key: 'beforeUpdateTable',
+    value: function beforeUpdateTable() {
+      var _this11 = this;
+
+      if (this.outputData.length === 1) {
+        this.showSingleEntityLegend();
+        return false;
+      } else {
+        $('.single-entity-stats').html('');
+
+        if (['pageviews', 'siteviews'].includes(this.app)) {
+          $('.single-entity-ranking').html('');
+        }
+      }
+
+      this.$outputList.html('');
+
+      /** sort ascending by current sort setting, using slice() to clone the array */
+      var datasets = this.outputData.slice().sort(function (a, b) {
+        var before = _this11.getSortProperty(a, _this11.sort),
+            after = _this11.getSortProperty(b, _this11.sort);
+
+        if (before < after) {
+          return _this11.direction;
+        } else if (before > after) {
+          return -_this11.direction;
+        } else {
+          return 0;
+        }
+      });
+
+      $('.sort-link .glyphicon').removeClass('glyphicon-sort-by-alphabet-alt glyphicon-sort-by-alphabet').addClass('glyphicon-sort');
+      var newSortClassName = parseInt(this.direction, 10) === 1 ? 'glyphicon-sort-by-alphabet-alt' : 'glyphicon-sort-by-alphabet';
+      $('.sort-link--' + this.sort + ' .glyphicon').addClass(newSortClassName).removeClass('glyphicon-sort');
+
+      return datasets;
+    }
+
+    /**
+     * Update the chart with data provided by processInput()
+     * @param {Object} [xhrData] - data as constructed by processInput()
+     *   data is omitted if we already have everything we need in this.outputData
+     * @returns {null}
+     */
+
+  }, {
+    key: 'updateChart',
+    value: function updateChart(xhrData) {
+      var _this12 = this;
+
+      $('.chart-legend').html(''); // clear old chart legend
+      var entityNames = xhrData ? xhrData.entities : this.$select2Input.val();
+
+      // show pending error messages if present, exiting if fatal
+      if (xhrData && this.showErrors(xhrData)) return;
+
+      if (!entityNames.length) {
+        return this.stopSpinny();
+      } else if (entityNames.length === 1) {
+        $('.multi-page-chart-node').hide();
+      } else {
+        $('.multi-page-chart-node').show();
+      }
+
+      if (xhrData) {
+        this.outputData = this.buildChartData(xhrData.datasets, entityNames);
+      }
+
+      // first figure out if we should use a log chart
+      if (this.autoLogDetection === 'true') {
+        var shouldBeLogarithmic = this.shouldBeLogarithmic(this.outputData.map(function (set) {
+          return set.data;
+        }));
+        this.$logarithmicCheckbox.prop('checked', shouldBeLogarithmic);
+        $('.begin-at-zero').toggleClass('disabled', shouldBeLogarithmic);
+      }
+
+      // set colors for datasets, and fill in nulls where there are zeros if log chart
+      this.outputData = this.setColorsAndLogValues(this.outputData);
+
+      var options = Object.assign({ scales: {} }, this.config.chartConfig[this.chartType].opts, this.config.globalChartOpts);
+
+      if (this.isLogarithmic()) {
+        options.scales = Object.assign({}, options.scales, {
+          yAxes: [{
+            type: 'logarithmic',
+            ticks: {
+              callback: function callback(value, index, arr) {
+                var remain = value / Math.pow(10, Math.floor(Chart.helpers.log10(value)));
+
+                if (remain === 1 || remain === 2 || remain === 5 || index === 0 || index === arr.length - 1) {
+                  return _this12.formatNumber(value);
+                } else {
+                  return '';
+                }
+              }
+            }
+          }]
         });
       }
-    }, {
-      key: 'monthDatepicker',
-      get: function get() {
-        return this.cachedElement('.month-selector').data('datepicker');
+
+      this.stopSpinny();
+
+      try {
+        $('.chart-container').html('').append("<canvas id='chart'>");
+        this.setChartPointDetectionRadius();
+        var context = this.$chart[0].getContext('2d');
+        var grandMin = Math.min.apply(Math, _toConsumableArray(this.outputData.map(function (d) {
+          return d.min;
+        })));
+
+        if (this.config.linearCharts.includes(this.chartType)) {
+          var linearData = {
+            labels: this.getDateHeadings(),
+            datasets: this.outputData,
+            dateFormat: this.dateFormat // so it will be accessible in zoom_plugin.js
+          };
+
+          if (this.chartType === 'radar') {
+            options.scale.ticks.beginAtZero = grandMin === 0 || $('.begin-at-zero-option').is(':checked');
+          } else {
+            options.scales.yAxes[0].ticks.beginAtZero = grandMin === 0 || $('.begin-at-zero-option').is(':checked');
+            options.zoom = ['pageviews', 'siteviews', 'mediaviews'].includes(this.app) && this.numDaysInRange() > 1 && !this.isMonthly();
+          }
+
+          // Show labels if option is checked (for linear charts only)
+          if ($('.show-labels-option').is(':checked')) {
+            options = this.showPointLabels(options);
+          } else {
+            delete options.animation.onComplete;
+            delete options.animation.onProgress;
+          }
+
+          this.chartObj = new Chart(context, {
+            type: this.chartType,
+            data: linearData,
+            options: options
+          });
+        } else {
+          // in case these were set when changing from linear chart type
+          delete options.animation.onComplete;
+          delete options.animation.onProgress;
+          this.chartObj = new Chart(context, {
+            type: this.chartType,
+            data: {
+              labels: this.outputData.map(function (d) {
+                return d.label;
+              }),
+              datasets: [{
+                data: this.outputData.map(function (d) {
+                  return d.value;
+                }),
+                backgroundColor: this.outputData.map(function (d) {
+                  return d.backgroundColor;
+                }),
+                hoverBackgroundColor: this.outputData.map(function (d) {
+                  return d.hoverBackgroundColor;
+                }),
+                averages: this.outputData.map(function (d) {
+                  return d.average;
+                })
+              }]
+            },
+            options: options
+          });
+        }
+      } catch (err) {
+        return this.showErrors({
+          errors: [],
+          fatalErrors: [err]
+        });
       }
 
-      /**
-       * Get the datepicker (not daterangepicker) instance of the start month selector
-       * @return {Object} datepicker
-       */
+      $('.chart-legend').html(this.chartObj.generateLegend());
+      $('.data-links').removeClass('invisible');
 
-    }, {
-      key: 'monthStartDatepicker',
-      get: function get() {
-        return this.cachedElement('.month-selector-start').data('datepicker');
+      if (['metaviews', 'pageviews', 'siteviews', 'mediaviews'].includes(this.app)) {
+        this.updateTable();
+      }
+    }
+
+    /**
+     * Show the values each point in the series
+     * Courtesy of Hung Tran: http://stackoverflow.com/a/38797712/604142
+     * @param {Object} options - to be passed to Chart instantiation
+     * @returns {Object} modified options
+     */
+
+  }, {
+    key: 'showPointLabels',
+    value: function showPointLabels(options) {
+      var _this13 = this;
+
+      if (!['bar', 'line'].includes(this.chartType)) return;
+
+      var modifyCtx = function modifyCtx(ctx) {
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = '#444';
+        ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+        return ctx;
+      };
+
+      var drawValue = function drawValue(context, step) {
+        var chartInstance = context.chart;
+        var ctx = modifyCtx(chartInstance.ctx);
+
+        Chart.helpers.each(context.data.datasets.forEach(function (dataset, i) {
+          var meta = chartInstance.controller.getDatasetMeta(i);
+          Chart.helpers.each(meta.data.forEach(function (bar, index) {
+            ctx.fillStyle = 'rgba(68,68,68,' + step + ')';
+            var scaleMax = dataset._meta[Object.keys(dataset._meta)[0]].data[index]._yScale.maxHeight;
+            var yPos = (scaleMax - bar._model.y) / scaleMax >= 0.93 ? bar._model.y + 5 : bar._model.y - 10;
+            ctx.fillText(_this13.n(dataset.data[index]), bar._model.x, yPos);
+          }), context);
+        }), context);
+      };
+
+      options.animation.onComplete = function () {
+        drawValue(this, 1);
+      };
+
+      options.animation.onProgress = function (state) {
+        var animation = state.animationObject;
+        drawValue(this, animation.currentStep / animation.numSteps);
+      };
+
+      return options;
+    }
+
+    /**
+     * Show errors built in this.processInput
+     * @param {object} xhrData - as built by this.processInput, like `{ errors: [], fatalErrors: [] }`
+     * @returns {boolean} whether or not fatal errors occured
+     */
+
+  }, {
+    key: 'showErrors',
+    value: function showErrors(xhrData) {
+      var _this14 = this;
+
+      if (xhrData.fatalErrors.length) {
+        this.resetView(true);
+        var fatalErrors = xhrData.fatalErrors.unique();
+        this.showFatalErrors(fatalErrors);
+
+        return true;
       }
 
-      /**
-       * Get the datepicker (not daterangepicker) instance of the end month selector
-       * @return {Object} datepicker
-       */
+      if (xhrData.errors.length) {
+        // if everything failed, reset the view, clearing out space taken up by empty chart
+        if (xhrData.entities && (xhrData.errors.length === xhrData.entities.length || !xhrData.entities.length)) {
+          this.resetView();
+        }
 
-    }, {
-      key: 'monthEndDatepicker',
-      get: function get() {
-        return this.cachedElement('.month-selector-end').data('datepicker');
+        xhrData.errors.unique().forEach(function (error) {
+          return _this14.writeMessage(error);
+        });
       }
 
-      /**
-       * Get the output list (table shown the chart for when there are multiple entities).
-       * @returns {jQuery}
-       */
+      return false;
+    }
 
-    }, {
-      key: '$outputList',
-      get: function get() {
-        return this.cachedElement('.output-list');
-      }
+    /**
+     * Listeners specific to chart-based apps.
+     * @override
+     */
 
-      /**
-       * Get the checkbox input that toggles logarithmic view.
-       * @returns {jQuery}
-       */
+  }, {
+    key: 'setupListeners',
+    value: function setupListeners() {
+      var _this15 = this;
 
-    }, {
-      key: '$logarithmicCheckbox',
-      get: function get() {
-        return this.cachedElement('#logarithmic-checkbox');
-      }
+      _get(ChartHelpers.prototype.__proto__ || Object.getPrototypeOf(ChartHelpers.prototype), 'setupListeners', this).call(this);
+      $('.clear-pages').on('click', function () {
+        _this15.resetView(true);
+        _this15.focusSelect2();
+      });
+    }
+  }, {
+    key: 'monthDatepicker',
+    get: function get() {
+      return this.cachedElement('.month-selector').data('datepicker');
+    }
 
-      /**
-       * Get the "Begin at zero" checkbox.
-       * @return {jQuery}
-       */
+    /**
+     * Get the datepicker (not daterangepicker) instance of the start month selector
+     * @return {Object} datepicker
+     */
 
-    }, {
-      key: '$beginAtZeroCheckbox',
-      get: function get() {
-        return this.cachedElement('.begin-at-zero');
-      }
+  }, {
+    key: 'monthStartDatepicker',
+    get: function get() {
+      return this.cachedElement('.month-selector-start').data('datepicker');
+    }
 
-      /**
-       * Get the "Show labels" checkbox.
-       * @return {jQuery}
-       */
+    /**
+     * Get the datepicker (not daterangepicker) instance of the end month selector
+     * @return {Object} datepicker
+     */
 
-    }, {
-      key: '$showLabelsCheckbox',
-      get: function get() {
-        return this.cachedElement('.show-labels-option');
-      }
-    }]);
+  }, {
+    key: 'monthEndDatepicker',
+    get: function get() {
+      return this.cachedElement('.month-selector-end').data('datepicker');
+    }
 
-    return _class;
-  }(superclass);
-};
+    /**
+     * Get the output list (table shown the chart for when there are multiple entities).
+     * @returns {jQuery}
+     */
+
+  }, {
+    key: '$outputList',
+    get: function get() {
+      return this.cachedElement('.output-list');
+    }
+
+    /**
+     * Get the checkbox input that toggles logarithmic view.
+     * @returns {jQuery}
+     */
+
+  }, {
+    key: '$logarithmicCheckbox',
+    get: function get() {
+      return this.cachedElement('#logarithmic-checkbox');
+    }
+
+    /**
+     * Get the "Begin at zero" checkbox.
+     * @return {jQuery}
+     */
+
+  }, {
+    key: '$beginAtZeroCheckbox',
+    get: function get() {
+      return this.cachedElement('.begin-at-zero');
+    }
+
+    /**
+     * Get the "Show labels" checkbox.
+     * @return {jQuery}
+     */
+
+  }, {
+    key: '$showLabelsCheckbox',
+    get: function get() {
+      return this.cachedElement('.show-labels-option');
+    }
+  }]);
+
+  return ChartHelpers;
+}(Pv);
+
+;
 
 module.exports = ChartHelpers;
 
-},{"./zoom_plugin":10}],5:[function(require,module,exports){
+},{"../shared/pv":7,"./zoom_plugin":10}],5:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();

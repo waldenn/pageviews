@@ -1099,6 +1099,7 @@ const ChartHelpers = superclass => class extends superclass {
    * @override
    */
   setupListeners() {
+    super.setupListeners();
     $('.clear-pages').on('click', () => {
       this.resetView(true);
       this.focusSelect2();
