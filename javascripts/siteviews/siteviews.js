@@ -268,26 +268,8 @@ class SiteViews extends mix(Pv).with(ChartHelpers) {
    */
   setupListeners() {
     super.setupListeners();
-    $('#platform-select, #agent-select').on('change', this.processInput.bind(this));
-    $('#date-type-select').on('change', e => {
-      $('.date-selector').toggle(e.target.value === 'daily');
-      $('.month-selector').toggle(e.target.value === 'monthly');
-      if (e.target.value === 'monthly') {
-        // no special ranges for month data type
-        this.specialRange = null;
 
-        this.setupMonthSelector();
-
-        // Set values of normal daterangepicker, which is what is used when we query the API
-        // This will in turn call this.processInput()
-        this.daterangepicker.setStartDate(this.monthStartDatepicker.getDate());
-        this.daterangepicker.setEndDate(
-          moment(this.monthEndDatepicker.getDate()).endOf('month')
-        );
-      } else {
-        this.processInput();
-      }
-    });
+    $.merge(this.$platformSelector, this.$agentSelector).on('change', this.processInput.bind(this));
     $('.all-projects-radio').on('change', e => {
       $('.site-selector').toggleClass('disabled', e.target.value === '1');
 
